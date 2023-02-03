@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-
-
 import 'package:colorize/colorize.dart' show Colorize, Styles;
 import 'dart:io';
 
@@ -29,6 +27,7 @@ const LEVEL0 = [
 	ELevel.critical,
 	ELevel.sys
 ];
+
 const LEVEL1 = [
 	ELevel.info,
 	ELevel.error,
@@ -37,35 +36,27 @@ const LEVEL1 = [
 	ELevel.critical,
 	ELevel.sys
 ];
+
 const LEVEL2 = [
 	ELevel.error, ELevel.debug, ELevel.warning, ELevel.critical, ELevel.sys];
+
 const LEVEL3 = [ELevel.error, ELevel.warning, ELevel.critical, ELevel.sys];
 const LEVEL4 = [ELevel.error, ELevel.critical, ELevel.sys];
 const LEVELS = [
 	ELevel.error, ELevel.debug, ELevel.warning, ELevel.critical, ELevel.sys
 ];
 
-
 abstract class LoggerSketch {
-	String name;
-	
+	late String name;
 	void log(Object logLevel, {bool show_module: true});
-	
 	void sys(Object logLevel, {bool show_module: true});
-	
 	void info(Object logLevel, {bool show_module: true});
-	
 	void debug(Object logLevel, {bool show_module: true});
-	
 	void warning(Object logLevel, {bool show_module: true});
-	
 	void critical(Object logLevel, {bool show_module: true});
-	
 	void error(Object logLevel, {bool show_module: true});
-	
 	void call(String msg, [ELevel level = ELevel.info, bool show_module = true]);
 }
-
 
 class FileLoggerSupplement {
 }
@@ -85,8 +76,12 @@ class TimeStampFileLogger<T> {
 	bool storeExtra;
 	int maxrecs;
 	
-	TimeStampFileLogger(
-			{String path, this.duplicate = false, this.maxrecs = 200, this.storeExtra = false}) {
+	TimeStampFileLogger({
+		required String path,
+		this.duplicate = false,
+		this.maxrecs = 200,
+		this.storeExtra = false
+	}) {
 		_logPath = path;
 		logData = [];
 		logDataExtra = [];
@@ -281,14 +276,15 @@ class Logger implements LoggerSketch {
 				isUnderline: false);
 	}
 	
-	static Colorize getColour(String text,
-			{Styles front,
-				Styles back,
-				bool isUnderline: false,
-				bool isBold: false,
-				bool isDark: false,
-				bool isItalic: false,
-				bool isReverse: false}) {
+	static Colorize getColour(String text, {
+		Styles front,
+		Styles back,
+		bool isUnderline: false,
+		bool isBold: false,
+		bool isDark: false,
+		bool isItalic: false,
+		bool isReverse: false
+	}) {
 		Colorize string = new Colorize(text);
 		
 		if (front != null) {

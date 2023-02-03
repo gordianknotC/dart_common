@@ -1,6 +1,4 @@
 
-
-
 import 'dart:io';
 import 'package:path/path.dart' as Path;
 import 'package:common/common.dart';
@@ -18,7 +16,7 @@ String rectifyPathSeparator(String path) {
    //return combinePath(path, sep);
 }
 
-String getScriptPath(Uri uri, [String script_name]) {
+String getScriptPath(Uri uri, [String? script_name]) {
    if (script_name == null)
       return rectifyPathSeparator(
          Path.dirname(uri.toString()).split('file:///')[1]
@@ -27,8 +25,6 @@ String getScriptPath(Uri uri, [String script_name]) {
       Path.dirname(uri.toString()).split('file:///')[1]
    ), script_name);
 }
-
-
 
 void main(){
    final list = List.generate(12, (i) => i+1).toList();
@@ -56,16 +52,15 @@ void main(){
    });
    
    group("TimeStampFileLogger", (){
-      TimeStampFileLogger logger;
-      String path;
-      String initialLog;
-      List<String> initialContent;
-      List<String> record1 = [
+      late TimeStampFileLogger logger;
+      late String path;
+      late String initialLog = '';
+      late List<String> initialContent;
+      late List<String> record1 = [
         'hello', 'wolrd', 'I have', 'a dream'
       ];
-      bool emptyLog;
-      
-      
+      bool emptyLog = true;
+
       setUpAll(() {
          path = Path.join(getScriptPath(Platform.script), "log.log");
          initialLog = File(path).readAsStringSync();
@@ -73,10 +68,6 @@ void main(){
          emptyLog = initialLog.isEmpty;
          logger = TimeStampFileLogger(path: path, duplicate: false, storeExtra: true);
       });
-      
-//      tearDownAll((){
-//         logger.close();
-//      });
       
       test('init test expect previous log to be stored or completedly a new one', (){
          if (emptyLog){

@@ -6,10 +6,8 @@ import 'dart:typed_data';
 import 'package:common/src/common.log.dart';
 import 'package:colorize/colorize.dart' show Colorize, Styles;
 
-
 typedef _TEndsStartsWith = bool Function(String source, String end);
 typedef _TSubstring = String Function(String source, int start, int end);
-
 
 final _D = Logger(name: 'common', levels: [ELevel.level3]);
 final _UPPERCACE_A = 'A'.codeUnitAt(0);

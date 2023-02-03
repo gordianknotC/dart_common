@@ -58,7 +58,7 @@ class Behaviors {
    static Iterable<List<String>>
    splits(String word) {
       var alphas = word.split('');
-      return FN.map(alphas, (a, [i]) {
+      return FN.map(alphas, (a, [int i]) {
          _log('$i, $a,  $alphas, ${alphas.take(i + 1)}', ELevel.info);
          return [alphas.take(i + 1).join(), alphas.sublist(i + 1).join()];
       });

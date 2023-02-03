@@ -7,14 +7,15 @@
     <bookmark url="file://$PROJECT_DIR$/test/FN.test.dart" line="66" mnemonic="1" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6f6892a0-3fe2-46fd-8fcc-e84606792948" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="6f6892a0-3fe2-46fd-8fcc-e84606792948" name="Default Changelist" comment="Doc readme">
+      <change afterPath="$PROJECT_DIR$/lib/src/common.debugtool.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/common.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/common.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/src/common.log.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/common.log.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/common.spell.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/common.spell.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test/FN.test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/FN.test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -65,6 +66,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="5" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -164,13 +168,14 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "last_opened_file_path": "/Volumes/Extreme SSD/data/document/programing/IdeaProjects/Dart/myPackages/common",
-    "settings.editor.selected.configurable": "flutter.settings",
+    "last_opened_file_path": "/Volumes/Extreme SSD/data/document/programing/IdeaProjects/Dart/myPackages/common/lib/src",
+    "settings.editor.selected.configurable": "dart.settings",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/src" />
       <recent name="E:\MyDocument\Programing\Dart\myPackages\common\test\assets" />
       <recent name="E:\MyDocument\Dart\common\test" />
       <recent name="E:\MyDocument\Dart\common\lib\src" />
@@ -250,7 +255,21 @@
       <option name="project" value="LOCAL" />
       <updated>1548422073770</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="initial commit">
+      <created>1675334202948</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1675334202948</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Doc readme">
+      <created>1675334292944</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1675334292944</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -339,17 +358,42 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/auth" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Created" />
     <MESSAGE value="first working code after rewrite into separate packages" />
-    <option name="LAST_COMMIT_MESSAGE" value="first working code after rewrite into separate packages" />
+    <MESSAGE value="initial commit" />
+    <MESSAGE value="Doc readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="Doc readme" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/src/common.dart</url>
-          <line>76</line>
+          <line>74</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
