@@ -8,15 +8,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6f6892a0-3fe2-46fd-8fcc-e84606792948" name="Default Changelist" comment="Doc readme">
-      <change afterPath="$PROJECT_DIR$/lib/src/common.debugtool.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/common.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/common.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/common.log.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/common.log.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/src/common.spell.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/src/common.spell.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/FN.test.dart" beforeDir="false" afterPath="$PROJECT_DIR$/test/FN.test.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -169,7 +168,7 @@
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
     "last_opened_file_path": "/Volumes/Extreme SSD/data/document/programing/IdeaProjects/Dart/myPackages/common/lib/src",
-    "settings.editor.selected.configurable": "dart.settings",
+    "settings.editor.selected.configurable": "flutter.settings",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>

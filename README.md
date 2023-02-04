@@ -20,5 +20,17 @@
     ```
 - simple logger
 
+- IS
+  - is.not
+  - is.empty / is.set / is.string / is.array / is.Null / is.present / is.number / is.Int 
+  - is.union(masterList, subSetList)
+  - is.alphabetic(char)
+  - is.upperCaseChar
+  - is.lowerCaseChar
+  - is.underlineChar
+  - is.camelCase
+  - is.snakeCase
+  - is.odd
+  - is.even
 
 [Spell]:./lib/src/common.spell.dart

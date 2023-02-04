@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
-
 import 'package:common/src/common.log.dart';
 import 'package:colorize/colorize.dart' show Colorize, Styles;
+import 'package:meta/meta.dart';
 
 typedef _TEndsStartsWith = bool Function(String source, String end);
 typedef _TSubstring = String Function(String source, int start, int end);
@@ -19,7 +19,7 @@ String ename<T>(T e) {
 	return e.toString().split('.')[1];
 }
 
-void tryRaise(Function expression, [Object message]) {
+void tryRaise(Function expression, [Object message = ""]) {
 	try {
 		try {
 			expression();
@@ -30,7 +30,7 @@ void tryRaise(Function expression, [Object message]) {
 	} catch (e) {}
 }
 
-T guard<T>(T expression(), Object message, {bool raiseOnly: true, String error = 'AnError'}) {
+T? guard<T>(T expression(), Object message, {bool raiseOnly: true, String error = 'AnError'}) {
 	if (raiseOnly) {
 		try {
 			return expression();
@@ -66,7 +66,7 @@ T Function(C) observerGuard<T, C>(T expression(), Object message) {
 	};
 }
 
-void raise(Object message, {String error = 'AnError', ELevel level}) {
+void raise(Object message, {String error = 'AnError', ELevel level = ELevel.error}) {
 	try {
 		try {
 			throw(message);
@@ -104,7 +104,7 @@ void GP(String message, Function(String _) cb, [int level = 1]) {
 
 class Tuple<K, V> {
 	K key;
-	V value;
+	V? value;
 	
 	String toString() => [key, value].toString();
 	
@@ -139,7 +139,7 @@ class Triple<F, M, C> {
 }
 
 //@formatter:off
-class _singletonIS {
+class _IsNotWhat {
 	bool set(Set set) => !IS.set(set);
 	
 	bool string(String s) => !IS.string(s);
@@ -152,18 +152,16 @@ class _singletonIS {
 	
 	bool Null(dynamic a) => !IS.Null(a);
 	
-	bool present(dynamic a) => !IS.present(a);
-	
 	bool empty(dynamic s) => !IS.empty(s);
 }
 
-final IS = singletonIS();
+final IS = IsWhat();
 
-class singletonIS {
-	_singletonIS _not;
+class IsWhat {
+	late _IsNotWhat _not;
 	
 	get not {
-		_not ??= _singletonIS();
+		_not ??= _IsNotWhat();
 		return _not;
 	}
 	
@@ -176,20 +174,16 @@ class singletonIS {
 	}
 	
 	bool
-	set(Set<dynamic> set) => set is Set;
+	set(dynamic set) => set is Set;
 	
 	bool
-	string(String text) => text is String;
+	string(dynamic text) => text is String;
 	
 	bool
-	array(List<dynamic> arr) => arr is List;
+	array(dynamic arr) => arr is List;
 	
 	bool
 	Null(dynamic a) => a == null;
-	
-	bool
-	present(dynamic a) => a != null;
-	
 	
 	bool
 	number(dynamic text) =>
@@ -235,8 +229,8 @@ class singletonIS {
 		var second_test = first_test == IS.upperCaseChar ? IS.lowerCaseChar : IS.upperCaseChar;
 		
 		if (first_test(letters[0])) {
-			var altered = letters.firstWhere((l) => second_test(l), orElse: () => null);
-			var idx = altered != null ? letters.indexOf(altered) : letters.length;
+			var altered = letters.firstWhere((l) => second_test(l), orElse: () => "");
+			var idx = altered.isNotEmpty ? letters.indexOf(altered) : letters.length;
 			if (idx < letters.length - 1) {
 				if (letters.indexWhere((l) => first_test(l), idx) != -1)
 					return true;
@@ -254,8 +248,8 @@ class singletonIS {
 		var second_test = first_test == IS.alphabetic ? IS.underlineChar : IS.alphabetic;
 		
 		if (first_test(letters[0])) {
-			var altered_char = letters.firstWhere((l) => second_test(l), orElse: () => null);
-			var idx = altered_char != null
+			var altered_char = letters.firstWhere((l) => second_test(l), orElse: () => "");
+			var idx = altered_char.isNotEmpty
 					? letters.indexOf(altered_char)
 					: letters.length;
 			if (idx < letters.length - 1) {
@@ -273,8 +267,6 @@ class singletonIS {
 	
 	bool
 	even(int num) => num != 0 && (num % 2 == 0);
-	
-	
 }
 
 String _keepIndent(String source, int level) {
@@ -293,12 +285,12 @@ String _keepIndent(String source, int level) {
 class TLinked<T> {
 	void Function(T arg) master;
 	void Function(void Function()) slaveSetter;
-	void Function() _slave;
+	void Function()? _slave;
 	
 	void Function() get slave {
 		if (_slave == null)
 			throw Exception('slave has not been set');
-		return _slave;
+		return _slave!;
 	}
 	
 	set slave(void cb()) => _slave = cb;
@@ -307,10 +299,10 @@ class TLinked<T> {
 }
 
 class Sort<T> {
-	List<T> ntagRecords;
+	List<T> dateRecords;
 	
-	Sort(this.ntagRecords);
-	
+	Sort(this.dateRecords);
+
 	int Function(T a, T b)
 	dateDec(DateTime date(T a)) {
 		return (T a, T b) =>
@@ -318,7 +310,7 @@ class Sort<T> {
 				.difference(date(a))
 				.inMilliseconds;
 	}
-	
+
 	int Function(T a, T b)
 	dateAcc(DateTime date(T a)) {
 		return (T a, T b) =>
@@ -337,35 +329,35 @@ class Sort<T> {
 		return (T a, T b) => getter(a) - getter(b);
 	}
 	
-	Map<DateTime, List<T>> byDateDec(bool isDiff(T a, T b), DateTime date(T a), bool filterDuplicate(List<T> a, T b)) {
+	Map<DateTime, List<T>> byDateDec(bool isDiff(T? a, T? b), DateTime dateGetter(T a), bool filterDuplicate(List<T> a, T b)?) {
 		try {
-			T a, b;
+			T? a, b;
 			List<T> linearStack = [];
 			Map<DateTime, List<T>> cate = {};
-			ntagRecords.sort((a, b) =>
-			date(b).difference(date(a)).inMilliseconds);
+			dateRecords.sort((a, b) =>
+			dateGetter(b).difference(dateGetter(a)).inMilliseconds);
 			
-			for (var i = 0; i < ntagRecords.length; i ++) {
-				b = ntagRecords[i];
+			for (var i = 0; i < dateRecords.length; i ++) {
+				b = dateRecords[i];
 				if (a != null) {
 					if (isDiff(linearStack.isNotEmpty ? linearStack.last : null, a)) {
 						linearStack.add(a);
-						cate[date(a)] ??= [];
-						cate[date(a)].add(a);
+						cate[dateGetter(a)] ??= [];
+						cate[dateGetter(a)]!.add(a);
 					} else {
-						if (filterDuplicate != null && filterDuplicate(cate[date(linearStack.last)], a)) {
-							cate[date(linearStack.last)].add(a);
+						if (filterDuplicate != null && filterDuplicate(cate[dateGetter(linearStack.last)]!, a)) {
+							cate[dateGetter(linearStack.last)]!.add(a);
 						} else
 							_D.debug('blocked record: $a');
 					}
 					
 					if (isDiff(linearStack.isNotEmpty ? linearStack.last : null, b)) {
-						linearStack.add(b);
-						cate[date(b)] ??= [];
-						cate[date(b)].add(b);
+						linearStack.add(b!);
+						cate[dateGetter(b)] ??= [];
+						cate[dateGetter(b)]!.add(b);
 					} else {
-						if (filterDuplicate != null && filterDuplicate(cate[date(linearStack.last)], b)) {
-							cate[date(linearStack.last)].add(b);
+						if (filterDuplicate != null && filterDuplicate(cate[dateGetter(linearStack.last)]!, b!)) {
+							cate[dateGetter(linearStack.last)]!.add(b);
 						} else
 							_D.debug('blocked record: $b');
 					}
@@ -379,137 +371,64 @@ class Sort<T> {
 		}
 	}
 	
-	Map<DateTime, List<T>> byDateAcc(bool isDiff(T a, T b), DateTime date(T a), bool filterDuplicate(List<T> a, T b)) {
-		T a, b;
+	Map<DateTime, List<T>> byDateAcc(bool isDiff(T? a, T? b), DateTime dateGetter(T a), bool filterDuplicate(List<T> a, T b)?) {
+		T? a, b;
 		List<T> linearStack = [];
 		Map<DateTime, List<T>> cate = {};
 		//bool Function() isNotFirstRecord = () => a != null;
-		ntagRecords.sort((a, b) => date(a).difference(date(b)).inMilliseconds);
+		dateRecords.sort((a, b) => dateGetter(a).difference(dateGetter(b)).inMilliseconds);
 		
-		for (var i = ntagRecords.length - 1; i >= 0; i --) {
-			b = ntagRecords[i];
+		for (var i = dateRecords.length - 1; i >= 0; i --) {
+			b = dateRecords[i];
 			if (a != null) {
 				if (isDiff(linearStack.isNotEmpty ? linearStack.last : null, a)) {
 					linearStack.add(a);
-					cate[date(a)] ??= [];
-					cate[date(a)].add(a);
+					cate[dateGetter(a)] ??= [];
+					cate[dateGetter(a)]!.add(a);
 				} else {
-					if (filterDuplicate != null && filterDuplicate(cate[date(linearStack.last)], a)) {
-						cate[date(linearStack.last)].add(a);
+					if (filterDuplicate != null && filterDuplicate(cate[dateGetter(linearStack.last)]!, a)) {
+						cate[dateGetter(linearStack.last)]!.add(a);
 					} else
 						_D.debug('blocked record: $a');
 				}
 				
 				if (isDiff(linearStack.isNotEmpty ? linearStack.last : null, b)) {
-					linearStack.add(b);
-					cate[date(b)] ??= [];
-					cate[date(b)].add(b);
+					linearStack.add(b!);
+					cate[dateGetter(b)] ??= [];
+					cate[dateGetter(b)]!.add(b);
 				} else {
-					if (filterDuplicate != null && filterDuplicate(cate[date(linearStack.last)], a)) {
-						cate[date(linearStack.last)].add(b);
+					if (filterDuplicate != null && filterDuplicate(cate[dateGetter(linearStack.last)]!, a)) {
+						cate[dateGetter(linearStack.last)]!.add(b!);
 					} else
 						_D.debug('blocked record: $b');
 				}
 			}
 			a = b;
 		}
-		return cate;
-	}
-	
-	Map<int, List<T>> byCustomDec(bool isDiff(T a, T b), DateTime date(T a), int custom(T a), bool filterDuplicate(List<T> a, T b)) {
-		T a, b;
-		List<T> linearStack = [];
-		Map<int, List<T>> cate = {};
-		ntagRecords.sort((a, b) => custom(b) - custom(a));
-		
-		for (var i = 0; i < ntagRecords.length; i ++) {
-			b = ntagRecords[i];
-			if (a != null) {
-				if (isDiff(linearStack.isNotEmpty ? linearStack.last : null, a)) {
-					linearStack.add(a);
-					cate[custom(a)] ??= [];
-					cate[custom(a)].add(a);
-				} else {
-					if (filterDuplicate != null && filterDuplicate(cate[custom(linearStack.last)], a)) {
-						if (!cate[custom(linearStack.last)].contains(a))
-							cate[custom(linearStack.last)].add(a);
-					} else
-						_D.debug('blocked record: $a');
-				}
-				if (isDiff(linearStack.isNotEmpty ? linearStack.last : null, b)) {
-					linearStack.add(b);
-					cate[custom(b)] ??= [];
-					cate[custom(b)].add(b);
-				} else {
-					if (filterDuplicate != null && filterDuplicate(cate[custom(linearStack.last)], b)) {
-						if (!cate[custom(linearStack.last)].contains(b))
-							cate[custom(linearStack.last)].add(b);
-					} else
-						_D.debug('blocked record: $b');
-				}
-			}
-			a = b;
-		}
-		return cate;
-	}
-	
-	Map<int, List<T>> byCustomAcc(bool isDiff(T a, T b), DateTime date(T a), int custom(T a), bool filterDuplicate(List<T> a, T b)) {
-		T a, b;
-		List<T> linearStack = [];
-		Map<int, List<T>> cate = {};
-		ntagRecords.sort((a, b) => custom(a) - custom(b));
-		for (var i = ntagRecords.length - 1; i >= 0; i --) {
-			b = ntagRecords[i];
-			if (a != null) { // a == null => first record, a != null => prev record
-				if (isDiff(linearStack.isNotEmpty ? linearStack.last : null, a)) {
-					linearStack.add(a);
-					cate[custom(a)] ??= [];
-					cate[custom(a)].add(a);
-				} else {
-					if (filterDuplicate != null && filterDuplicate(cate[custom(linearStack.last)], a)) {
-						if (!cate[custom(linearStack.last)].contains(a))
-							cate[custom(linearStack.last)].add(a);
-					} else
-						_D.debug('blocked record: $a');
-				}
-				if (isDiff(linearStack.isNotEmpty ? linearStack.last : null, b)) {
-					linearStack.add(b);
-					cate[custom(b)] ??= [];
-					cate[custom(b)].add(b);
-				} else {
-					if (filterDuplicate != null && filterDuplicate(cate[custom(linearStack.last)], b)) {
-						if (!cate[custom(linearStack.last)].contains(b))
-							cate[custom(linearStack.last)].add(b);
-					} else
-						_D.debug('blocked record: $b');
-				}
-			}
-			a = b;
-		}
-		_D.debug('cate.keys  : ${cate.keys}');
-		_D.debug('cate.values: ${cate.values}');
 		return cate;
 	}
 }
 
 
 class FN {
-	static void callEither(Function a, Function b){
+	static void callEither(Function? a, Function? b){
 		assert(a != null || b != null);
-		if   (a != null) a();
-		else 					   b();
+		if (a != null)
+			a();
+		else
+			b!();
 	}
 	
-	static bool orderedEqualBy<E>(List<E> a, List<E> b, bool eq(E a, E b)){
+	static bool orderedEqualBy<E>(List<E>? a, List<E>? b, bool eq(E a, E b)){
 		if ((a?.isEmpty ?? true) && (b?.isEmpty ?? true))
 			return true;
 		
 		if (a?.length != b?.length)
 			return false;
 		
-		for (var i = 0; i < a.length; ++i) {
+		for (var i = 0; i < a!.length; ++i) {
 			final _a = a[i];
-			final _b = b[i];
+			final _b = b![i];
 			if (!eq(_a, _b))
 				return false;
 		}
@@ -538,7 +457,7 @@ class FN {
 	static Future<Tuple<Isolate, StreamSubscription>>
 	createIsolate<T>(void onIsolate(T s), T data) async {
 		if (_ISOLATES.containsKey(T))
-			return _ISOLATES[T];
+			return _ISOLATES[T]!;
 		final isolate =  await Isolate.spawn<T>(onIsolate, data);
 		return _ISOLATES[T] = Tuple(isolate, null);
 	}
@@ -561,25 +480,29 @@ class FN {
 		return completer.future;
 	}
 	
-	static void stopIsolate<T>(Isolate isolate) {
+	static void stopIsolate<T>(Isolate? isolate) {
 		if (isolate != null) {
 			if (_ISOLATES.containsKey(T))	{
 				isolate.kill(priority: Isolate.immediate);
-				_ISOLATES[T].value.cancel();
+				_ISOLATES[T]!.value?.cancel();
 				_ISOLATES.remove(T);
 			}else{
-				final entry = _ISOLATES.entries.firstWhere((entry) => entry.value.key == isolate, orElse: () => null);
-				entry?.value?.key?.kill?.call(priority: Isolate.immediate);
-				entry?.value?.value?.cancel?.call();
-				_ISOLATES.remove(entry?.key);
+				guard((){
+					final entry = _ISOLATES.entries.firstWhere((entry) => entry.value.key == isolate);
+					entry.value.key.kill.call(priority: Isolate.immediate);
+					entry.value.value?.cancel.call();
+					_ISOLATES.remove(entry.key);
+				}, "isolate entry not found");
 			}
 		}
 	}
 	
-	T getMapKeyByWhereValue<T, V>(Map<T, V> map, V value) {
-		return map.entries
-				.firstWhere((e) => e.value == value, orElse: () => null)
-				.key;
+	T? getMapKeyByWhereValue<T, V>(Map<T, V> map, V value) {
+		return guard((){
+			return map.entries
+					.firstWhere((e) => e.value == value)
+					.key;
+		}, "getMapKeyByWhereValue, value not found $value");
 	}
 	
 	/// --------------------------------------
@@ -587,8 +510,8 @@ class FN {
 	/// FIXME: untested
 	static TLinked<T>
 	linkCallback<T>(void master(T arg), void slaveSetter(void slave())) {
-		TLinked<T> result;
-		void Function() relinked_slave;
+		late TLinked<T> result;
+		late void Function() relinked_slave;
 		void linked_slave(void slave()) {
 			slaveSetter(slave);
 			relinked_slave = slave;
@@ -601,7 +524,7 @@ class FN {
 		return result = TLinked(newMaster, linked_slave);
 	}
 	
-	static T getEltOrNull<T>(List<T> elements, int id) {
+	static T? getEltOrNull<T>(List<T> elements, int id) {
 		final l = elements.length;
 		if (id < l) return elements[id];
 		return null;
@@ -629,21 +552,21 @@ class FN {
 	}
 	
 	static E
-	range<E>(E s, [int start, int end]) {
+	range<E>(E s, [int? start, int? end]) {
 		if (E == String) {
 			var source = s as String;
 			if (start != null && start < 0)
 				start = source.length + start;
 			if (end != null && end < 0)
 				end = source.length + end;
-			return source.substring(start, end) as E;
+			return source.substring(start!, end) as E;
 		} else if (E == List) {
 			var source = s as List;
 			if (start != null && start < 0)
 				start = source.length + start;
 			if (end != null && end < 0)
 				end = source.length + end;
-			return source.sublist(start, end) as E;
+			return source.sublist(start!, end) as E;
 		} else {
 			throw Exception('Invalid type. Only support for string or list');
 		}
@@ -676,7 +599,7 @@ class FN {
 	
 	static List<String>
 	split(String data, String ptn, [int max = 1]) {
-		String d = data, pre, suf;
+		late String d = data, pre, suf;
 		var ret = <String>[];
 		for (var i = 0; i < max; ++i) {
 			var idx = d.indexOf(ptn);
@@ -695,18 +618,17 @@ class FN {
 	
 	static int
 	findIndex<T>(List<T> data, bool search(T element)) {
-		int result;
-		FN.forEach(data, (T el, [i]) {
+		int? result = -1;
+		FN.forEach(data, (T el, [int? i]) {
 			if (search(el)) {
 				result = i;
 				return true;
 			}
 			return false;
 		});
-		return result;
+		return result ?? -1;
 	}
-	
-	
+
 	static int
 	count<E>(List<E> A, E B, bool comp(E a, E b)) {
 		var counter = 0;
@@ -724,7 +646,6 @@ class FN {
 		return data.fold<int>(0, (initial, b){
 			return initial + comp(b);
 		});
-		
 	}
 	
 	static List<E>
@@ -750,7 +671,7 @@ class FN {
 	}
 	
 	static Iterable<E>
-	union_1dlist<E>(List<E> left, List<E> right, [bool comp(List<E> a, E b)]) {
+	union_1dlist<E>(List<E> left, List<E> right, [bool comp(List<E> a, E b)?]) {
 		var already_in_r = false;
 		var ret = left;
 		comp ??= (a, b) => a.contains(b);
@@ -766,7 +687,7 @@ class FN {
 	}
 	
 	static List<List<E>>
-	union_2dlist<E>(List<List<E>> left, List<List<E>> right, [bool comp(List<E> a, E b)]) {
+	union_2dlist<E>(List<List<E>> left, List<List<E>> right, [bool comp(List<E> a, E b)?]) {
 		var already_in_r = false;
 		var all = <List<E>>[];
 		comp ??= (a, b) => a.contains(b);
@@ -775,7 +696,7 @@ class FN {
 			var r_member = right[i];
 			already_in_r = r_member.every((ref) =>
 					left.any((l_member) =>
-							comp(l_member, ref)));
+							comp!(l_member, ref)));
 			if (already_in_r) {} else {
 				all.add(r_member);
 			};
@@ -784,7 +705,7 @@ class FN {
 	}
 	
 	static List<T>
-	sorted<T>(List<T> data, [int compare(T a, T b)]) {
+	sorted<T>(List<T> data, [int compare(T a, T b)?]) {
 		if (data.isEmpty) return data;
 		final iterators = data.toList(growable: false);
 		iterators.sort(compare);
@@ -987,7 +908,9 @@ class FN {
 		}
 	}
 	
-	static void updateMembers(Map<String, dynamic> target, Map<String, dynamic> source, {List<String> members, bool removeFromSource = false}) {
+	static void updateDictByMembers(Map<String, dynamic> target, Map<String, dynamic> source, {
+		required List<String> members, bool removeFromSource = false
+	}) {
 		members.forEach((m) {
 			if (source.containsKey(m)) {
 				target[m] = source[m];
@@ -1023,10 +946,9 @@ class FN {
 	}
 }
 
-
 // fixme: size overflow detection (bigger than 4 bytes)
 class TwoDBytes {
-	Uint8List bytes;
+	late Uint8List bytes;
 	int lengthByes = 4;
 	
 	TwoDBytes(List<List<int>> twoD_list, {this.lengthByes = 4}) {
@@ -1081,8 +1003,8 @@ class TwoDBytes {
 	Stream<Uint8List> get records async* {
 		var r = 2;
 		var l = 2;
-		Uint8List data_length;
-		int numberof_data_length;
+		late Uint8List data_length;
+		late int numberof_data_length;
 		try {
 			for (var flag = 0; flag < recordsLength; ++flag) {
 				l = r;
