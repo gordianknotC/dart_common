@@ -3,7 +3,7 @@
 /// More dartdocs go here.
 library common;
 //
-export 'src/common.dart' show tryRaise, guard, raise, Tuple, Triple, Dict,  observerGuard;
+export 'src/dart_common.dart' show tryRaise, guard, raise, Tuple, Triple, Dict,  observerGuard;
 export 'src/common.date.dart';
 export 'src/common.fn.dart';
 export 'src/common.is.dart';

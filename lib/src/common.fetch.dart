@@ -4,7 +4,7 @@ import 'package:dart_common/src/common.log.dart';
 import 'package:colorize/colorize.dart' show Colorize, Styles;
 import 'dart:convert';
 
-import '../common.dart';
+import '../dart_common.dart';
 
 /// tested:
 class RetryFetcher{

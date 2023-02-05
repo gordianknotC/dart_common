@@ -1,7 +1,7 @@
 
 import 'dart:io';
 import 'package:path/path.dart' as Path;
-import 'package:dart_common/common.dart';
+import 'package:dart_common/dart_common.dart';
 import 'package:dart_common/src/common.log.dart';
 import 'package:test/test.dart';
 

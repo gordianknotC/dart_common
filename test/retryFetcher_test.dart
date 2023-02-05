@@ -1,4 +1,4 @@
-import 'package:dart_common/common.dart';
+import 'package:dart_common/dart_common.dart';
 import 'package:test/test.dart';
 
 

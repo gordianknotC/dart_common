@@ -1,7 +1,7 @@
 // import 'dart:io';
 // import 'dart:html';
 import 'dart:math';
-import 'package:dart_common/common.dart';
+import 'package:dart_common/dart_common.dart';
 import 'package:dart_common/src/common.env.dart';
 import 'package:logger/logger.dart' as DefaultLogger;
 import 'package:path/path.dart' as _Path;
