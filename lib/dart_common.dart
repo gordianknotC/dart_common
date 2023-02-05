@@ -1,7 +1,7 @@
 /// Support for doing something awesome.
 ///
 /// More dartdocs go here.
-library common;
+library dart_common;
 //
 export 'src/dart_common.dart' show tryRaise, guard, raise, Tuple, Triple, Dict,  observerGuard;
 export 'src/common.date.dart';
