@@ -5,33 +5,33 @@ class Sort<T> {
 
   Sort(this.dateRecords);
 
-  int Function(T a, T b)
-  dateDec(DateTime date(T a)) {
-    return (T a, T b) =>
-    date(b)
-        .difference(date(a))
-        .inMilliseconds;
-  }
+  // int Function(T a, T b)
+  // decByDate(DateTime date(T a)) {
+  //   return (T a, T b) =>
+  //   date(b)
+  //       .difference(date(a))
+  //       .inMilliseconds;
+  // }
+  //
+  // int Function(T a, T b)
+  // accByDate(DateTime date(T a)) {
+  //   return (T a, T b) =>
+  //   date(a)
+  //       .difference(date(b))
+  //       .inMilliseconds;
+  // }
+  //
+  // int Function(T a, T b)
+  // decByX(int getter(T a)) {
+  //   return (T a, T b) => getter(b) - getter(a);
+  // }
+  //
+  // int Function(T a, T b)
+  // accByX(int getter(T a)) {
+  //   return (T a, T b) => getter(a) - getter(b);
+  // }
 
-  int Function(T a, T b)
-  dateAcc(DateTime date(T a)) {
-    return (T a, T b) =>
-    date(a)
-        .difference(date(b))
-        .inMilliseconds;
-  }
-
-  int Function(T a, T b)
-  XDec(int getter(T a)) {
-    return (T a, T b) => getter(b) - getter(a);
-  }
-
-  int Function(T a, T b)
-  XAcc(int getter(T a)) {
-    return (T a, T b) => getter(a) - getter(b);
-  }
-
-  Map<DateTime, List<T>> byDateDec(bool isDiff(T? a, T? b), DateTime dateGetter(T a), bool filterDuplicate(List<T> a, T b)?) {
+  Map<DateTime, List<T>> decByDateWithDuplicateFilter(bool isDiff(T? a, T? b), DateTime dateGetter(T a), bool filterDuplicate(List<T> a, T b)?) {
     try {
       T? a, b;
       List<T> linearStack = [];
@@ -71,7 +71,7 @@ class Sort<T> {
     }
   }
 
-  Map<DateTime, List<T>> byDateAcc(bool isDiff(T? a, T? b), DateTime dateGetter(T a), bool filterDuplicate(List<T> a, T b)?) {
+  Map<DateTime, List<T>> accByDateWithDuplicateFilter(bool isDiff(T? a, T? b), DateTime dateGetter(T a), bool filterDuplicate(List<T> a, T b)?) {
     T? a, b;
     List<T> linearStack = [];
     Map<DateTime, List<T>> cate = {};

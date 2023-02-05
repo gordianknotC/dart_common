@@ -23,7 +23,6 @@ String _keepIndent(String source, int level) {
 	return source;
 }
 
-
 class FN {
 	static void callEither(Function? a, Function? b){
 		assert(a != null || b != null);
@@ -340,8 +339,7 @@ class FN {
 			return cb(e, i);
 		});
 	}
-	
-	
+
 	static String
 	_strip(String source, List<String> stripper,
 			int srlen, int stlen,
@@ -451,7 +449,6 @@ class FN {
 			}).join('');
 		return word;
 	}
-	
 	
 	static void
 	prettyPrint(dynamic source, [int level = 0, bool colorized = true]) {

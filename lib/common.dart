@@ -4,7 +4,6 @@
 library common;
 //
 export 'src/common.dart' show tryRaise, guard, raise, Tuple, Triple, Dict,  observerGuard;
-export 'src/common.spell.dart' show Spell, CamelCaseTyping;
 export 'src/common.date.dart';
 export 'src/common.fn.dart';
 export 'src/common.is.dart';

@@ -22,8 +22,6 @@ final _error = (String msg) => _isWeb ? window.console.error(msg) : print(msg);
 final _info = (String msg) => _isWeb ? window.console.info(msg) : print(msg);
 final _trace = (String msg) => _isWeb ? window.console.trace(msg) : print(msg);
 
-
-
 String rectifyPathSeparator(String path) {
   //orig:  if (!path.contains(sep))
   if (Platform().isMacOS && !path.startsWith('/'))
@@ -55,20 +53,18 @@ extension ELevelExtension on ELevel{
   String toEnumString() => _Strings[this.index];
 }
 
-
 const LEVEL0 = [ELevel.debug, ELevel.warning, ELevel.error, ELevel.current, ELevel.info];
 const LEVEL1 = [ELevel.warning, ELevel.error, ELevel.current];
 const LEVEL2 = [ELevel.error, ELevel.current];
-
 
 /// [isRunningOnTestEnv]
 /// unit test environment 下用來避開 flutter 環境啓動
 bool get isRunningOnTestEnv  => Platform().environment.containsKey('FLUTTER_TEST');
 
 /*
-   get current script path, no matter where the project root is.
-   EX:
-      getScriptPath(Platform.script)
+get current script path, no matter where the project root is.
+EX:
+  getScriptPath(Platform.script)
 */
 String getScriptPath(Uri uri, [String? script_name]) {
   final segments = _Path.dirname(uri.toString()).split('file:///');
@@ -263,7 +259,6 @@ class Logger {
       .._moduleLevel = level
     ;
   }
-
 
   ///
   /// [filter]

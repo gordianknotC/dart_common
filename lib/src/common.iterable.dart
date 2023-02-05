@@ -90,10 +90,6 @@ class TwoDBytes {
 	}
 }
 
-
-
-
-
 extension SetExtension<T> on Set<T>{
 	Set exclusive(Set other){
 		final added = other.difference(this);
@@ -114,9 +110,6 @@ extension SetExtension<T> on Set<T>{
 		return union..addAll(added);
 	}
 }
-
-
-
 
 mixin ListCommon<T>{
 	List<T?> get delegate;
@@ -160,7 +153,6 @@ mixin ListCommon<T>{
 
 	void addAll(List<T> elements);
 }
-
 
 ///
 /// [FixedLengthList]
@@ -238,10 +230,6 @@ class FixedLengthList<T> with ListCommon<T>{
 	}
 }
 
-
-
-
-
 /// [groupBy] 使用的是 Map, 而不是 ordered map
 /// [LinkedHashMap] 為 ordered Map
 ///
@@ -255,11 +243,3 @@ LinkedHashMap<T, List<S>> orderedGroupBy<S, T>(Iterable<S> values, T key(S eleme
 	}
 	return map;
 }
-
-
-
-
-
-
-
-

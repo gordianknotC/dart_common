@@ -23,8 +23,7 @@ class PackageNumber {
       _maintainNumber = int.parse(result.group(3)!);
       _patchNumber = int.parse((result.group(4) ?? "+0").split('+').last);
     } catch (e, s) {
-      print(
-          '[ERROR] on PackageNumber.PackageNumber, versionString $versionString $e\n$s');
+      print('[ERROR] on PackageNumber.PackageNumber, versionString $versionString $e\n$s');
       rethrow;
     }
   }
