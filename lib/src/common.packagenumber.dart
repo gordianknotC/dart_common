@@ -1,4 +1,4 @@
-import 'package:common/src/common.fn.dart';
+import 'package:dart_common/src/common.fn.dart';
 import 'package:colorize/colorize.dart' show Colorize, Styles;
 
 /// tested: test/packageNumberTest.dart

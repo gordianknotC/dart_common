@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:common/src/common.log.dart';
+import 'package:dart_common/src/common.log.dart';
 import 'package:colorize/colorize.dart' show Colorize, Styles;
 import 'dart:convert';
 

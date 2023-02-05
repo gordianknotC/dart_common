@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:common/src/common.log.dart';
+import 'package:dart_common/src/common.log.dart';
 import 'package:colorize/colorize.dart' show Colorize, Styles;
 import 'package:meta/meta.dart';
 

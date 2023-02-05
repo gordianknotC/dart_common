@@ -1,5 +1,5 @@
-import 'package:common/src/common.log.dart' show ELevel, Logger;
-import 'package:common/src/common.dart' show FN;
+import 'package:dart_common/src/common.log.dart' show ELevel, Logger;
+import 'package:dart_common/src/common.dart' show FN;
 
 import 'common.fn.dart';
 /*
