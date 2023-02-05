@@ -4,7 +4,7 @@ import 'package:colorize/colorize.dart' show Colorize, Styles;
 
 
 import '../dart_common.dart';
-import 'dart_common.dart';
+import 'common.dart';
 import 'common.is.dart';
 
 typedef _TEndsStartsWith = bool Function(String source, String end);

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:dart_common/src/dart_common.dart';
+import 'package:dart_common/src/common.dart';
 import 'package:test/test.dart';
 
 
