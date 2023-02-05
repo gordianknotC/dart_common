@@ -1,537 +1,461 @@
-import 'dart:async';
+// import 'dart:io';
+// import 'dart:html';
 import 'dart:math';
-import 'package:colorize/colorize.dart' show Colorize, Styles;
-import 'dart:io';
+import 'package:common/common.dart';
+import 'package:common/src/common.env.dart';
+import 'package:logger/logger.dart' as DefaultLogger;
+import 'package:path/path.dart' as _Path;
+import 'common.platform.dart';
+import 'dart:html';
+
+const METHOD_COUNT = 5;
+final _sep = _Path.separator;
+final _rsep = _sep == r'\'
+    ? r'/'
+    : r'\';
+
+final _isWeb = Platform().isWeb;
+final _log = (String msg) => _isWeb ? window.console.log(msg) : print(msg);
+final _debug = (String msg) => _isWeb ? window.console.debug(msg) : print(msg);
+final _warn = (String msg) => _isWeb ? window.console.warn(msg) : print(msg);
+final _error = (String msg) => _isWeb ? window.console.error(msg) : print(msg);
+final _info = (String msg) => _isWeb ? window.console.info(msg) : print(msg);
+final _trace = (String msg) => _isWeb ? window.console.trace(msg) : print(msg);
+
+
+
+String rectifyPathSeparator(String path) {
+  //orig:  if (!path.contains(sep))
+  if (Platform().isMacOS && !path.startsWith('/'))
+    path = "/$path";
+  if (path.contains(_rsep))
+    path = path.replaceAll(_rsep, _sep);
+  return path;
+  //return combinePath(path, sep);
+}
 
 enum ELevel {
-  log,
-  info,
-  debug,
-  warning,
-  critical,
-  sys,
-  error,
-  level0,
-  level1,
-  level2,
-  level3,
-  level4,
+  debug, warning, error, info, verbose,
+  current,
 }
 
-const LEVEL0 = [
-  ELevel.log,
-  ELevel.info,
-  ELevel.error,
-  ELevel.debug,
-  ELevel.warning,
-  ELevel.critical,
-  ELevel.sys
-];
+extension ELevelExtension on ELevel{
+  static const MAP = [
+    'debug', 'warning', 'error', 'info', 'verbose',
+    'current',
+  ];
+  static final List<String> _Strings = ELevel.values.map((e) => e.name).toList();
 
-const LEVEL1 = [
-  ELevel.info,
-  ELevel.error,
-  ELevel.debug,
-  ELevel.warning,
-  ELevel.critical,
-  ELevel.sys
-];
+  String get name => MAP[index];
 
-const LEVEL2 = [
-  ELevel.error,
-  ELevel.debug,
-  ELevel.warning,
-  ELevel.critical,
-  ELevel.sys
-];
+  ELevel fromString(String string) {
+    return guard(() => ELevel.values.firstWhere((e) => _Strings[e.index] == string), "failed to convert enum to string")!;
+  }
 
-const LEVEL3 = [ELevel.error, ELevel.warning, ELevel.critical, ELevel.sys];
-const LEVEL4 = [ELevel.error, ELevel.critical, ELevel.sys];
-const LEVELS = [
-  ELevel.error,
-  ELevel.debug,
-  ELevel.warning,
-  ELevel.critical,
-  ELevel.sys
-];
-
-abstract class LoggerSketch {
-  abstract String name;
-  void log(Object logLevel, {bool show_module: true});
-  void sys(Object logLevel, {bool show_module: true});
-  void info(Object logLevel, {bool show_module: true});
-  void debug(Object logLevel, {bool show_module: true});
-  void warning(Object logLevel, {bool show_module: true});
-  void critical(Object logLevel, {bool show_module: true});
-  void error(Object logLevel, {bool show_module: true});
-  void call(String msg, [ELevel level = ELevel.info, bool show_module = true]);
+  String toEnumString() => _Strings[this.index];
 }
 
-class FileLoggerSupplement {}
 
-// SPLITER untested:
-class TimeStampFileLogger<T> {
-  static const String EXTRA_SUFFIX = '.extra';
-  static String SPLITER = '\u000D\u000A';
-  late Completer<IOSink>? completer;
-  late List<String> logData;
-  late List<String> logDataExtra;
-  IOSink? file_sink;
-  IOSink? extraFile_sink;
-  late String _logPath;
+const LEVEL0 = [ELevel.debug, ELevel.warning, ELevel.error, ELevel.current, ELevel.info];
+const LEVEL1 = [ELevel.warning, ELevel.error, ELevel.current];
+const LEVEL2 = [ELevel.error, ELevel.current];
 
-  bool duplicate;
-  bool storeExtra;
-  int maxrecs;
 
-  TimeStampFileLogger(
-      {required String path,
-      this.duplicate = false,
-      this.maxrecs = 200,
-      this.storeExtra = false}) {
-    _logPath = path;
-    logData = [];
-    logDataExtra = [];
-    completer = Completer();
-    fileInit();
+/// [isRunningOnTestEnv]
+/// unit test environment 下用來避開 flutter 環境啓動
+bool get isRunningOnTestEnv  => Platform().environment.containsKey('FLUTTER_TEST');
+
+/*
+   get current script path, no matter where the project root is.
+   EX:
+      getScriptPath(Platform.script)
+*/
+String getScriptPath(Uri uri, [String? script_name]) {
+  final segments = _Path.dirname(uri.toString()).split('file:///');
+  if (script_name == null){
+    return rectifyPathSeparator(
+        segments.length > 1 ? segments[1] : segments[0]
+    );
   }
+  return _Path.join(rectifyPathSeparator(
+      segments.length > 1 ? segments[1] : segments[0]
+  ), script_name);
+}
 
-  String get logPath => _logPath;
+final stackTraceRegex = RegExp(r'#[0-9]+[\s]+(.+) \(([^\s]+)\)');
 
-  set logPath(String v) {
-    _logPath = v;
-    fileInit();
-  }
 
-  List<String> _limitList(List<String> list) {
-    return list.sublist(max(0, list.length - maxrecs), list.length);
-  }
-
-  void _limitLogData(List<String> finalList, File file) {
-    //file.writeAsStringSync(finalList.join(SPLITER) + SPLITER);
-  }
-
-  bool isReady() {
-    return completer!.isCompleted;
-  }
-
-  Future<IOSink> _sinkInit(
-      IOSink? sink, File file, void logSetter(List<String> list)) {
-    completer = Completer();
-    if (sink != null) {
-      sink.close().then((e) {
-        final data = file.readAsStringSync();
-        if (data.isNotEmpty) {
-          final origList =
-              data.split(SPLITER).where((a) => a.trim().isNotEmpty).toList();
-          final finalList = _limitList(origList);
-          if (origList.length > finalList.length)
-            _limitLogData(finalList, file);
-          logSetter(finalList);
-        } else {
-          logSetter([]);
+String? formatStackTrace(StackTrace stackTrace, {int methodCount = 2, int traceLines = 1, bool filter(String trace)?}) {
+  try {
+    var lines = stackTrace.toString().split("\n");
+    var formatted = <String>[];
+    var count = 0;
+    for (var line in lines) {
+      var match = stackTraceRegex.matchAsPrefix(line);
+      if (match != null) {
+        if (match.group(2)?.startsWith('package:logger') ?? false) {
+          continue;
         }
-        sink = file.openWrite();
-        completer!.complete(sink);
-      });
-    } else {
-      if (!file.existsSync()) {
-        print('${file.path} not exists');
-        file.writeAsStringSync("");
+        if (++count == methodCount) {
+          var newLine = "(${match.group(2)})";
+          formatted.add(newLine.replaceAll('<anonymous closure>', '()'));
+          if (traceLines > 1){
+            if (filter != null){
+              final _lines = lines.where(filter).toList();
+              formatted.addAll(_lines.sublist(min(methodCount, _lines.length), min(methodCount + traceLines - 1, _lines.length)));
+            }else{
+              formatted.addAll(lines.sublist(min(methodCount, lines.length), min(methodCount + traceLines - 1, lines.length)));
+            }
+          }
+          break;
+        }
       } else {
-        print('${file.path} already exists');
+        formatted.add(line);
       }
-
-      final data = file.readAsStringSync().trim();
-      if (data.isNotEmpty) {
-        final origList =
-            data.split(SPLITER).where((a) => a.trim().isNotEmpty).toList();
-        final finalList = _limitList(origList);
-        if (origList.length > finalList.length) _limitLogData(finalList, file);
-        logSetter(finalList);
-      } else {
-        logSetter([]);
-      }
-      sink = file.openWrite(mode: FileMode.append);
-      completer!.complete(sink);
     }
-    return completer!.future;
+
+    if (formatted.isEmpty) {
+      return null;
+    } else {
+      return formatted.join('\n');
+    }
+  } catch (e, s) {
+    _error('[ERROR] on formatStackTrace, params: f $e');
+  }
+  return null;
+}
+
+
+
+/// fixme:
+/// 應用 AOP (Aspect Oriented Progreamming) - AspectD
+/// 實作 logging, websocket 驗證，貫串整個 APP
+///
+class Logger {
+  /// [file_sinks]
+  /// dump logger 用
+  // static Map<String, Platform.IOSink> file_sinks = {'testEnv': null, 'flutter': null};
+
+  static final Map<String, Logger> _filterableInstances = {};
+  static final Set<String> _disabledModules = {};
+  static final Set<ELevel> _disabledLevels = {};
+  static final Set<String> _productionModules = {};
+  static final Set<String> _unitTestModules = {};
+
+  static Set<ELevel> getDisabledLevel(){
+    return _disabledLevels;
+  }
+  static Set<String> getDisabledModules(){
+    return _disabledModules;
   }
 
-  void fileInit() {
-    _sinkInit(file_sink, File(logPath), (list) {
-      logData = list;
-    }).then((fsink) {
-      final extraFile = File(logPath + EXTRA_SUFFIX);
-      file_sink = fsink;
-      if (storeExtra) {
-        _sinkInit(extraFile_sink, extraFile, (list) {
-          final refillExtra = list.isEmpty && logData.isNotEmpty;
-          logDataExtra = list;
-          final div = logDataExtra.length - logData.length;
-          print('div = $div, logDataExtra: $logDataExtra');
-          if (div < 0) {
-            logDataExtra += List.generate(-div, (a) => "0$SPLITER").toList();
-          } else if (logDataExtra.length > logDataExtra.length) {
-            logData += List.generate(div, (a) => "0$SPLITER").toList();
-          }
-          if (refillExtra) {
-            final content = logDataExtra.join("");
-            extraFile.writeAsStringSync(content);
-          }
-        }).then((esink) {
-          extraFile_sink = esink;
-        });
-      } else {}
+  static void setProductionModules(List<String> modules) {
+    _productionModules.clear();
+    _productionModules.addAll(modules);
+  }
+
+  static void setUnitTestModules(List<String> modules) {
+    _unitTestModules.addAll(modules);
+  }
+
+  static void setDisableLevel(Set<ELevel> level){
+    _disabledLevels.clear();
+    _disabledLevels.addAll(level);
+  }
+
+  static void setDisableModules(List<String> disabledModules){
+    _disabledModules.clear();
+    _disabledModules.addAll(disabledModules);
+  }
+
+  static void addDebugModules(List<String> addedModdules){
+    addedModdules.forEach((_){
+      _disabledModules.remove(_);
     });
+    return;
   }
 
-  static String getTime(
-      [DateTime? time,
-      String dsplit = "-",
-      String sector = "-",
-      String tsplit = "-"]) {
-    final t = time ?? DateTime.now();
-    final month =
-        ('0' + t.month.toString()).substring(t.month.toString().length - 1);
-    final day = ('0' + t.day.toString()).substring(t.day.toString().length - 1);
-    final hour =
-        ('0' + t.hour.toString()).substring(t.hour.toString().length - 1);
-    final result = '${t.year}-${month}-${day}-${hour}-${t.minute}';
+  static void addDisableModules(List<String> disabledModules){
+    _disabledModules.addAll(disabledModules);
+  }
+
+  static void disabbleAllExcept(List<String> exception, List<String> all){
+    _disabledModules.clear();
+    _disabledModules.addAll(all);
+    _disabledModules.removeWhere((_) => exception.contains(_));
+  }
+
+  static final emoji = {
+    ELevel.verbose : '',
+    ELevel.debug   : '🐛 ',
+    ELevel.info    : '💡 ',
+    ELevel.warning : '⚠️ ',
+    ELevel.error   : '⛔ ',
+    ELevel.current : '🧡️' ,
+  };
+
+  ///
+  static String stream_filename = 'tempLogger.log';
+  static Logger? _instance;
+  static Logger get instance => _instance!;
+
+
+
+  ELevel? _moduleLevel;
+  // IOSink? _fileSink;
+  List<ELevel>? _sinkLevel;
+  String? moduleName;
+  bool showModule = true;
+  DefaultLogger.Logger logger = DefaultLogger.Logger();
+
+  factory Logger() => _instance ??= new Logger._();
+
+  Logger._();
+
+  Logger.debug(dynamic message) {
+    logger.d(message);
+    try {
+    } catch (e, s) {
+      _error('[ERROR] on DebugTool.debug, params: f $e\n$s');
+    }
+  }
+
+  Logger.Logger(dynamic message) {
+    logger.i(message);
+    try {
+    } catch (e, s) {
+      _error('[ERROR] on DebugTool.info, params: f $e\n$s');
+    }
+  }
+
+  Logger.warn(dynamic message) {
+    logger.w(message);
+    try {
+    } catch (e, s) {
+      _error('[ERROR] on DebugTool.warn, params: f $e\n$s');
+    }
+  }
+
+  Logger.error(dynamic message) {
+    logger.e(message);
+    try {
+    } catch (e, s) {
+      _error('[ERROR] on DebugTool.error, params: f $e\n$s');
+    }
+  }
+
+
+  factory Logger.logger(){
+    return _instance ??= Logger();
+  }
+
+  factory Logger.streamLogger({List<ELevel>? sinkLevel}){
+    _log('streamLogger init... sinkeLevel: $sinkLevel');
+    return _instance ??= Logger()
+      .._sinkLevel ??= (sinkLevel ?? LEVEL1)
+      ..fileSinkInit();
+  }
+
+  factory Logger.filterableLogger({required String moduleName, ELevel level = ELevel.debug, bool showModule = true}){
+    return _filterableInstances[moduleName] ??= Logger._()
+      ..moduleName = moduleName
+      ..showModule = showModule
+      .._moduleLevel = level
     ;
-    return result;
   }
 
-  void log({T? key, String? data, String? supplement}) {
-    final logline = "${getTime()} $key $data".trim() + SPLITER;
-    if (!duplicate && logData.contains(key)) {
-    } else {
-      if (!storeExtra) {
-        logData.add(logline);
-        file_sink!.write(logline);
-      } else {
-        logDataExtra.add(supplement ?? "");
-        extraFile_sink!.write(supplement ?? "");
-        logData.add(logline);
-        file_sink!.write(logline);
+
+  ///
+  /// [filter]
+  /// 用來濾除 TraceStack, 讓 TraceStack 只顯示 filter 的 traceline
+  ///
+  /// [methodCount]
+  /// 往回推算原始 log caller 的位置
+  ///
+  /// [traceLines]
+  /// 需要顯示多少行數的 traceline
+  ///
+  String _getLog(message, ELevel logLevel, {int traceLines = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    try {
+      final String msg = message.toString();
+      if (logLevel == ELevel.verbose){
+        return msg;
       }
-    }
-  }
 
-  Future close() async {
-    completer = null;
-    await extraFile_sink?.close();
-    return file_sink!.close();
-  }
-}
+      /// methodCount 由_getLog 計算至 caller 的 callStack
+      final trace = formatStackTrace(StackTrace.current, methodCount: methodCount, traceLines: traceLines, filter: filter);
+      final module = showModule
+          ? "[${logLevel.toEnumString()}][$moduleName]"
+          : "[${logLevel.toEnumString()}]";
 
-class Logger implements LoggerSketch {
-  static Map<String, IOSink> file_sinks = {};
-  static bool production = false;
-  static bool disableFileSink = false;
-  static Set<String> disabledModules = Set.from([]);
-  static void Function(String m) fileWriter = (m) => stdout.write(m);
-
-  static Colorize colourLog(String msg) {
-    return getColour(msg.toString(),
-        front: Styles.DARK_GRAY,
-        isBold: false,
-        isItalic: false,
-        isUnderline: false);
-  }
-  static Colorize colourInfo(String msg) {
-    return getColour(msg.toString(),
-        front: Styles.LIGHT_GRAY,
-        isBold: false,
-        isItalic: false,
-        isUnderline: false);
-  }
-  static Colorize colourSys(String msg) {
-    return getColour(msg.toString(),
-        front: Styles.LIGHT_GRAY,
-        isBold: true,
-        isItalic: false,
-        isUnderline: false);
-  }
-  static Colorize colourDebug(String msg) {
-    return getColour(msg.toString(),
-        front: Styles.LIGHT_BLUE,
-        isBold: false,
-        isItalic: false,
-        isUnderline: false);
-  }
-  static Colorize colourCritical(String msg) {
-    return getColour(msg.toString(),
-        front: Styles.LIGHT_RED,
-        isBold: true,
-        isItalic: false,
-        isUnderline: false);
-  }
-  static Colorize colourError(String msg) {
-    return getColour(msg.toString(),
-        front: Styles.RED, isBold: false, isItalic: false, isUnderline: false);
-  }
-  static Colorize colourWarning(String msg) {
-    return getColour(msg.toString(),
-        front: Styles.YELLOW,
-        isBold: true,
-        isItalic: false,
-        isUnderline: false);
-  }
-  static Colorize getColour(String text,
-      {Styles? front,
-      Styles? back,
-      bool isUnderline: false,
-      bool isBold: false,
-      bool isDark: false,
-      bool isItalic: false,
-      bool isReverse: false}) {
-    Colorize string = new Colorize(text);
-
-    if (front != null) {
-      string.apply(front);
-    }
-
-    if (back != null) {
-      string.apply(back);
-    }
-
-    if (isUnderline) {
-      string.apply(Styles.UNDERLINE);
-    }
-
-    if (isBold) {
-      string.apply(Styles.BOLD);
-    }
-
-    if (isDark) {
-      string.apply(Styles.DARK);
-    }
-
-    if (isItalic) {
-      string.apply(Styles.ITALIC);
-    }
-
-    if (isReverse) {
-      string.apply(Styles.REVERSE);
-    }
-    return string;
-  }
-  static void colourize(String text, void write(String text, bool newline)) {
-    write(text, true);
-  }
-
-  void Function(String m, bool newline) write = (m, n) => print(m);
-
-  bool showOutput;
-  String name;
-  String? stream_path;
-  List<ELevel> levels;
-  IOSink? file_sink;
-  late bool isFlutter;
-  void Function(String m, bool newline) memWriter = (m, n) => null;
-
-  Logger({
-    required this.name,
-    this.levels = LEVELS,
-    void writer(String m, bool newline)?,
-    this.stream_path,
-    bool dumpOnMemory = false,
-    this.showOutput = true
-  }) {
-    if (writer != null) {
-      write = writer;
-    }
-
-    isFlutter = Platform.isAndroid || Platform.isIOS || Platform.isFuchsia;
-
-    if (!showOutput) disabledModules.add(name);
-
-    if (stream_path != null) {
-      if (!dumpOnMemory) {
-        fileSinkInit();
-        write = (String m, bool newline) {
-          // writer(m);
-          file_sink?.write(m);
-        };
+      if (msg.length > 100){
+        return "$module $msg\n"
+            "         ^ $trace`";
+      }else{
+        return "$module $msg <- $trace";
       }
-    }
-
-    if (dumpOnMemory) {
-      write = (String m, bool newline) {
-        memWriter(m, newline);
-        if (disabledModules.contains(name)) {
-          return;
-        }
-        ;
-        print(m);
-      };
-      file_sink?.close();
-    }
-    var error = () {
-      if (levels.length > 1)
-        throw Exception(
-            "Collection levels 'level0~level4' can't be used combining with regular level 'log, info, erro...'");
-    };
-    if (levels.contains(ELevel.level0)) {
-      error();
-      levels = LEVEL0;
-    } else if (levels.contains(ELevel.level1)) {
-      error();
-      levels = LEVEL1;
-    } else if (levels.contains(ELevel.level2)) {
-      error();
-      levels = LEVEL2;
-    } else if (levels.contains(ELevel.level3)) {
-      error();
-      levels = LEVEL3;
-    } else if (levels.contains(ELevel.level4)) {
-      error();
-      levels = LEVEL4;
+    } catch (e, s) {
+      return '[ERROR] on DebugTool._getLog, params $e';
     }
   }
+  ///
+  /// return false to continue logging via default [Logger]
+  /// return true to stop logging via default [Logger]
+  ///
+  bool _filterGuard(String msgGetter(), ELevel logLevel, {int traceLines = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    if (moduleName == null)
+      return false;
 
-  void close_sink() {
-    if (file_sink != null) {
-      file_sink!.close();
-      file_sinks.remove(file_sink);
-      file_sinks.removeWhere((k, v) => v == file_sink);
-    }
-  }
-
-  void fileSinkInit() {
-    if (stream_path != null){
-      if (file_sinks.containsKey(stream_path)) {
-        file_sink = file_sinks[stream_path]!;
-      } else {
-        file_sink = File(stream_path!).openWrite();
-        file_sinks[stream_path!] = file_sink!;
-      }
+    if (logLevel != ELevel.error){
+      /// non-error level
+      if (_moduleLevel == null
+          || _disabledModules.contains(moduleName)
+          || _disabledLevels.contains(_moduleLevel))
+        return true;
     }else{
+      /// methodCount + 1, since nested in assert expression
+      assert((){
+        _log(_getLog(msgGetter(), logLevel, traceLines: traceLines, methodCount: methodCount));
+        return true;
+      }());
+      return true;
+    }
 
+    if (appEnv.env == Env.widgetTest || appEnv.env == Env.develop || appEnv.env == Env.unitTest || appEnv.env == Env.widgetDev){
+      assert((){
+        _log(_getLog(msgGetter(), logLevel, traceLines: traceLines, methodCount: methodCount));
+        return true;
+      }());
+      return true;
+    }else{
+      return true;
     }
   }
 
-  String get moduleText {
-    final c = Colorize('[$name]\t');
-    c.apply(Styles.DEFAULT);
-    return c.toString();
+  void _productionLog(String msgGetter(), ELevel logLevel, {int traceLines = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    if (_productionModules.contains(moduleName)){
+      _log(_getLog(msgGetter(), logLevel, traceLines: traceLines, methodCount: methodCount-1));
+    }
   }
 
-  String flutterModuleText(String m) {
-    return '[$m $name]\t';
+  void _unitTestLog(String msgGetter(), ELevel logLevel, {int traceLines = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    if (_unitTestModules.contains(moduleName)){
+      assert((){
+        _log(_getLog(msgGetter(), logLevel, traceLines: traceLines, methodCount: methodCount));
+        return true;
+      }());
+    }
   }
 
-  void call(String msg, [ELevel level = ELevel.info, bool show_module = true]) {
-    if (levels.contains(level)) {
-      switch (level) {
+  void _i(String message(), {required int traceBack, required ELevel level, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    methodCount+=1;
+    if (appEnv.env == Env.production)
+      return _productionLog(message, level, traceLines: traceBack, filter: filter );
+    if (appEnv.env == Env.unitTest || appEnv.env == Env.widgetTest || appEnv.env ==Env.integrationTest)
+      return _unitTestLog(message, level, traceLines: traceBack, filter: filter );
+    if (appEnv.env != Env.production){
+      if (_filterGuard(message, level, traceLines: traceBack, filter: filter, methodCount: methodCount))
+        return;
+      dynamic log;
+      switch(level){
+        case ELevel.debug:
+          log = _isWeb ? window.console.log : print;
+          break;
         case ELevel.warning:
-          warning(msg, show_module: show_module);
+          log = _isWeb ? window.console.warn : print;
           break;
         case ELevel.error:
-          error(msg, show_module: show_module);
-          break;
-        case ELevel.critical:
-          error(msg, show_module: show_module);
-          break;
-        case ELevel.debug:
-          debug(msg, show_module: show_module);
+          log = _isWeb ? window.console.error : print;
           break;
         case ELevel.info:
-          info(msg, show_module: show_module);
+          log = _isWeb ? window.console.info : print;
           break;
-        default:
-          log(msg, show_module: show_module);
+        case ELevel.verbose:
+          log = _isWeb ? window.console.trace : print;
+          break;
+        case ELevel.current:
+          log = _isWeb ? window.console.log : print;
           break;
       }
+      log(message());
     }
   }
-
-  void _outputFlutter(String text, String type, bool show_module) {
-    if (show_module)
-      write('${flutterModuleText(type)} $text', true);
-    else
-      write(text, true);
+  void c(String message(), {int traceBack = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    _i(message, traceBack: traceBack, level: ELevel.current, filter: filter, methodCount: methodCount);
+  }
+  void p(String message(), {int traceBack = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    _i(message, traceBack: traceBack, level: ELevel.verbose, filter: filter, methodCount: methodCount);
   }
 
-  void _output(String text, bool show_module) {
-    if (show_module) write(moduleText, false);
-    write(text, false);
+  void v(String message(), {int traceBack = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    _i(message, traceBack: traceBack, level: ELevel.verbose, filter: filter, methodCount: methodCount);
   }
 
-  void log(Object msg, {bool show_module: true}) {
-    if (!levels.contains(ELevel.log) || production) return;
-    if (!isFlutter) {
-      _output('${colourLog(msg.toString())}', show_module);
-    } else {
-      _outputFlutter("$msg", '', show_module);
-    }
+  void d(String message(), {int traceBack = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    _i(message, traceBack: traceBack, level: ELevel.debug, filter: filter, methodCount: methodCount);
   }
 
-  void info(Object msg, {bool show_module: true}) {
-    if (!levels.contains(ELevel.info) || production) return;
-    if (!isFlutter) {
-      _output('${colourInfo(msg.toString())}', show_module);
-    } else {
-      _outputFlutter("$msg", 'I', show_module);
-    }
+  void i(String message(), {int traceBack = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    _i(message, traceBack: traceBack, level: ELevel.info, filter: filter, methodCount: methodCount);
   }
 
-  void sys(Object msg, {bool show_module: true}) {
-    if (!levels.contains(ELevel.sys) || production) return;
-    if (!isFlutter) {
-      _output('${colourSys(msg.toString())}', show_module);
-    } else {
-      _outputFlutter("$msg", 'S', show_module);
-    }
+  void w(String message(), {int traceBack = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    _i(message, traceBack: traceBack, level: ELevel.warning, filter: filter, methodCount: methodCount);
   }
 
-  void debug(Object msg, {bool show_module: true}) {
-    if (!levels.contains(ELevel.debug) || production) return;
-    if (!isFlutter) {
-      _output('${colourDebug(msg.toString())}', show_module);
-    } else {
-      _outputFlutter("$msg", 'D', show_module);
-    }
+  ///
+  /// [filter]
+  /// 用來濾除 TraceStack, 讓 TraceStack 只顯示 filter 的 traceline
+  ///
+  /// [methodCount]
+  /// 往回推算原始 log caller 的位置
+  ///
+  /// [traceBack]
+  /// 需要顯示多少行數的 traceline
+  ///
+  void e(String message(), {int traceBack = 1, bool filter(String trace)?, int methodCount = METHOD_COUNT}){
+    _i(message, traceBack: traceBack, level: ELevel.error, filter: filter, methodCount: methodCount);
   }
 
-  void critical(Object msg, {bool show_module: true}) {
-    if (!levels.contains(ELevel.critical)) return;
-    if (!isFlutter) {
-      _output('${colourCritical(msg.toString())}', show_module);
-    } else {
-      _outputFlutter("$msg", 'C', show_module);
-    }
+  void _sink(message, ELevel level){
+    /// stream logger 目前用不到
+    return;
   }
 
-  void error(Object msg, {bool show_module: true}) {
-    if (!levels.contains(ELevel.error)) return;
-    if (!isFlutter) {
-      _output('${colourError(msg.toString())}', show_module);
-    } else {
-      _outputFlutter("$msg", 'E', show_module);
-    }
+  // void close_sink() {
+  // 	file_sinks.forEach((k,file_sink){
+  // 		file_sink?.close();
+  // 		file_sinks[k] = null;
+  // 	});
+  // }
+
+  void fileSinkInit() {
+    /// stream logger 目前用不到
+    return;
+    // _log('fileSinkInit..., running on test: $isRunningOnTestEnv');
+    // if (isRunningOnTestEnv){
+    // 	final path = rectifyPathSeparator(_Path.join(getScriptPath(Platform().script), 'test', stream_filename));
+    // 	if(!File(path).existsSync())
+    // 		File(path).createSync();
+    // 	_fileSink = file_sinks['testEnv'] ??= File(path).openWrite();
+    // 	_log('fileSink path: $path');
+    // }else if (appConfigFacade.appDir.path.isEmpty) {
+    // 	/// web environment
+    // 	_fileSink = null;
+    // }else{
+    // 	/// 1) android
+    // 	/// 2) ios: 路徑在哪？ notice:
+    // 	final path = rectifyPathSeparator(
+    // 			_Path.join(appConfigFacade.appDir.path, stream_filename)
+    // 	);
+    // 	if(!File(path).existsSync())
+    // 		File(path).createSync();
+    // 	_fileSink = file_sinks['flutter'] ??= File(rectifyPathSeparator(
+    // 			_Path.join(appConfigFacade.appDir.path, stream_filename)
+    // 	)).openWrite();
+    // }
   }
-
-  void warning(Object msg, {bool show_module: true}) {
-    if (!levels.contains(ELevel.warning)) return;
-    if (!isFlutter) {
-      _output('${colourWarning(msg.toString())}', show_module);
-    } else {
-      _outputFlutter("$msg", 'W', show_module);
-    }
-  }
-
-  String toJson() {
-    return "";
-  }
-
-
-
-
-
-
-
-
-
 }
+
+
+

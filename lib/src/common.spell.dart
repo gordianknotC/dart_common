@@ -1,5 +1,7 @@
 import 'package:common/src/common.log.dart' show ELevel, Logger;
 import 'package:common/src/common.dart' show FN;
+
+import 'common.fn.dart';
 /*
 following code was re-implemented in dart borrowed from
 Peter Norvig
@@ -11,10 +13,6 @@ final _CAPITAL_A = 'A'.codeUnitAt(0);
 final _CAPITAL_Z = 'Z'.codeUnitAt(0);
 final _NON_CAP_A = 'a'.codeUnitAt(0);
 final _NON_CAP_Z = 'z'.codeUnitAt(0);
-
-final _log = Logger(
-    name: "common.spell",
-    levels: [ELevel.critical, ELevel.error, ELevel.warning, ELevel.debug]);
 
 bool _isCapitalChar(String w) {
   return w.codeUnitAt(0) >= _CAPITAL_A && w.codeUnitAt(0) <= _CAPITAL_Z;
@@ -51,7 +49,6 @@ class Behaviors {
   static Iterable<List<String>> splits(String word) {
     var alphas = word.split('');
     return FN.map(alphas, (a, [int i = 0]) {
-      _log('$i, $a,  $alphas, ${alphas.take(i + 1)}', ELevel.info);
       return [alphas.take(i + 1).join(), alphas.sublist(i + 1).join()];
     });
   }

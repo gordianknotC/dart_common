@@ -1,5 +1,7 @@
-name: common
-description: A starting point for Dart libraries or applications.
+name: dart_common
+publish_to: none
+repository: https://github.com/gordianknotC/dart_common
+description: dart common
 # version: 1.0.0
 # homepage: https://www.example.com
 # author: gordianknot <email@example.com>
@@ -9,6 +11,7 @@ environment:
 
 dependencies:
   colorize: ^3.0.0    #support colorizing console color
+  logger: 1.0.0
 
 dev_dependencies:
   test: ^1.22.2

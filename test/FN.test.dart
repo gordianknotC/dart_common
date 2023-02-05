@@ -51,55 +51,54 @@ void main(){
       });
    });
    
-   group("TimeStampFileLogger", (){
-      late TimeStampFileLogger logger;
-      late String path;
-      late String initialLog = '';
-      late List<String> initialContent;
-      late List<String> record1 = [
-        'hello', 'wolrd', 'I have', 'a dream'
-      ];
-      bool emptyLog = true;
-
-      setUpAll(() {
-         path = Path.join(getScriptPath(Platform.script), "log.log");
-         initialLog = File(path).readAsStringSync();
-         initialContent = initialLog.split('\n').where((x) => x.isNotEmpty).toList();
-         emptyLog = initialLog.isEmpty;
-         logger = TimeStampFileLogger(path: path, duplicate: false, storeExtra: true);
-      });
-      
-      test('init test expect previous log to be stored or completedly a new one', (){
-         if (emptyLog){
-            print('rawdata isEmpty..');
-            print('initialLog: $initialLog');
-            print('logData: ${logger.logData}');
-            expect(emptyLog, isTrue);
-            expect(logger.logData.isEmpty, isTrue);
-         } else {
-            print('rawdata isNotEmpty..');
-            print('initialLog: $initialLog');
-            print('logData: ${logger.logData}');
-            expect(logger.logData.isEmpty, isFalse);
-            expect(logger.logData, unorderedEquals(initialContent));
-            expect(emptyLog, isFalse);
-         }
-      });
-      
-      test('log record 1', (){
-         final l = logger.logData.length;
-         int counter = -1;
-         print('logData before: ${logger.logData}');
-         record1.forEach((log){
-            counter ++;
-            logger.log( key:  'read', data: log, supplement: 'bookmark:$counter');
-         });
-         logger.close();
-         print('logData after: ${logger.logData}');
-         print('extra        : ${logger.logDataExtra}');
-
-         expect(logger.logData.length, equals(l + record1.length));
-         expect(logger.logDataExtra.length, logger.logData.length);
-      });
-   });
+   // group("TimeStampFileLogger", (){
+   //    late String path;
+   //    late String initialLog = '';
+   //    late List<String> initialContent;
+   //    late List<String> record1 = [
+   //      'hello', 'wolrd', 'I have', 'a dream'
+   //    ];
+   //    bool emptyLog = true;
+   //
+   //    setUpAll(() {
+   //       path = Path.join(getScriptPath(Platform.script), "log.log");
+   //       initialLog = File(path).readAsStringSync();
+   //       initialContent = initialLog.split('\n').where((x) => x.isNotEmpty).toList();
+   //       emptyLog = initialLog.isEmpty;
+   //       logger = TimeStampFileLogger(path: path, duplicate: false, storeExtra: true);
+   //    });
+   //
+   //    test('init test expect previous log to be stored or completedly a new one', (){
+   //       if (emptyLog){
+   //          print('rawdata isEmpty..');
+   //          print('initialLog: $initialLog');
+   //          print('logData: ${logger.logData}');
+   //          expect(emptyLog, isTrue);
+   //          expect(logger.logData.isEmpty, isTrue);
+   //       } else {
+   //          print('rawdata isNotEmpty..');
+   //          print('initialLog: $initialLog');
+   //          print('logData: ${logger.logData}');
+   //          expect(logger.logData.isEmpty, isFalse);
+   //          expect(logger.logData, unorderedEquals(initialContent));
+   //          expect(emptyLog, isFalse);
+   //       }
+   //    });
+   //
+   //    test('log record 1', (){
+   //       final l = logger.logData.length;
+   //       int counter = -1;
+   //       print('logData before: ${logger.logData}');
+   //       record1.forEach((log){
+   //          counter ++;
+   //          logger.log( key:  'read', data: log, supplement: 'bookmark:$counter');
+   //       });
+   //       logger.close();
+   //       print('logData after: ${logger.logData}');
+   //       print('extra        : ${logger.logDataExtra}');
+   //
+   //       expect(logger.logData.length, equals(l + record1.length));
+   //       expect(logger.logDataExtra.length, logger.logData.length);
+   //    });
+   // });
 }
