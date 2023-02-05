@@ -286,3 +286,33 @@ void main([arguments]) {
         '''\nexpect $pa to be sum, got: ${FN.dePrefix(pa, 'on', 'changed', true)}''');
   }
 }
+
+
+
+///
+///  tested:
+///  依據 instance 取得 Ident Object
+///  提供 dispose 方法用以消滅 Ident Object
+///
+class Ident {
+  static Map<dynamic, Map<int, Object>> _identities = {};
+  static void set<T>(T val){
+    _identities[T] ??= {};
+    _identities[T]![val.hashCode] = Object();
+  }
+
+  static Object get<T>(T val){
+    _identities[T] ??= {};
+    if (_identities[T]!.containsKey(val.hashCode)){
+      assert(_identities[T]![val.hashCode] != null);
+      return _identities[T]![val.hashCode]!;
+    }
+    set<T>(val);
+    return _identities[T]![val.hashCode]!;
+  }
+
+  static void dispose<T>(T val){
+    _identities[T] ??= {};
+    _identities[T]!.remove(val.hashCode);
+  }
+}
