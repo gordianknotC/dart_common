@@ -1,7 +1,7 @@
 import 'package:dart_common/src/common.fn.dart';
 import 'package:colorize/colorize.dart' show Colorize, Styles;
 
-/// tested: test/packageNumberTest.dart
+/// tested: test/package_number.test.dart
 class PackageNumber {
   ///1.12.13+12
   final RegExp regex = RegExp(r'([0-9]+.)([0-9]+.)([0-9]+)(\+[0-9]+){0,1}');
