@@ -13,11 +13,11 @@ void main(){
 						throw Exception('error throws');
 					}
 					return Future.value('');
-			}, maxRettries: 5, duration: Duration(seconds: 1));
+			}, maxRettries: 5, minInterval: Duration(seconds: 1));
 			r.fetch();
 			for (var i = 0; i < 5; ++i) {
 				print(i);
-				await Future.delayed(r.duration);
+				await Future.delayed(r.minInterval);
 			}
 			expect(retries, equals(r.retries));
 		});
@@ -34,15 +34,13 @@ void main(){
 					print('retries $retries with failed response');
 					throw Exception('error throws');
 				}
-			}, maxRettries: 5, duration: Duration(seconds: 1));
+			}, maxRettries: 5, minInterval: Duration(seconds: 1));
 			r.fetch();
 			for (var i = 0; i < 3; ++i) {
 				print(i);
-				await Future.delayed(r.duration);
+				await Future.delayed(r.minInterval);
 			}
 			expect(retries, equals(2));
 		});
-		
-		
 	});
 }

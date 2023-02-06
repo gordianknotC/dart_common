@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'package:colorize/colorize.dart' show Colorize, Styles;
-
-
+import 'package:dart_common/src/common.isolate.dart';
 import '../dart_common.dart';
 import 'common.dart';
-import 'common.is.dart';
 
 typedef _TEndsStartsWith = bool Function(String source, String end);
 typedef _TSubstring = String Function(String source, int start, int end);
@@ -23,7 +21,19 @@ String _keepIndent(String source, int level) {
 	return source;
 }
 
+T? _getKeyWhereValue<T, V>(Map<T, V> map, V value) {
+	return guard((){
+		return map.entries
+				.firstWhere((e) => e.value == value)
+				.key;
+	}, "getKeyWhereValue, value not found $value");
+}
+
+
+
+/// 常用 functional programming
 class FN {
+	/// call either a or b
 	static void callEither(Function? a, Function? b){
 		assert(a != null || b != null);
 		if (a != null)
@@ -31,7 +41,12 @@ class FN {
 		else
 			b!();
 	}
-	
+	/// test if it's two list is equal in order
+	/// ### Example:
+	/// ```dart
+	/// final test = FN.orderedEqualBy([1,2], [1,2], (a, b)=>a==b);
+	/// expect(test, true);
+	/// ```
 	static bool orderedEqualBy<E>(List<E>? a, List<E>? b, bool eq(E a, E b)){
 		if ((a?.isEmpty ?? true) && (b?.isEmpty ?? true))
 			return true;
@@ -47,16 +62,29 @@ class FN {
 		}
 		return true;
 	}
-	
-	static bool orderedTheSame<E>(List<E> a, List<E> b){
+
+	///
+	/// 與 [orderedEqualBy] 相同，只是第三個參數複寫為 (a, b)=>a==b
+	///
+	static bool orderedEqual<E>(List<E> a, List<E> b){
 		return orderedEqualBy<E>(a, b, (_a, _b) => _a == _b);
 	}
-	
-	static assertEitherNotBoth(bool a, bool b) {
-		assert((a || b) == true);
-		assert((a && b) == false);
+
+	@Deprecated("use orderedEqual instead")
+	static final orderedTheSame = orderedEqual;
+
+	///
+	/// assert a 或 b 其中一方為 true, 而非二者
+	///
+	static assertEitherNotBoth(bool? a, bool? b) {
+		assert(((a ?? false) || (b ?? false)) == true);
+		assert(((a ?? false) && (b ?? false)) == false);
 	}
-	
+
+	///
+	/// filter out duplicated records in [data] according to [isDuplicate]
+	/// 依 [isDuplicated] 濾除 [data]
+	///
 	static Iterable<T> uniqueBy<T>(Iterable<T> data, bool isDuplicate(T a, T b)) {
 		return data.fold<List<T>>([], (initial, b) {
 			if (initial.any((a) => isDuplicate(a, b)))
@@ -64,57 +92,24 @@ class FN {
 			return initial + [b];
 		});
 	}
-	
-	static Map<Type, Tuple<Isolate, StreamSubscription>> _ISOLATES = {};
-	
-	static Future<Tuple<Isolate, StreamSubscription>>
-	createIsolate<T>(void onIsolate(T s), T data) async {
-		if (_ISOLATES.containsKey(T))
-			return _ISOLATES[T]!;
-		final isolate =  await Isolate.spawn<T>(onIsolate, data);
-		return _ISOLATES[T] = Tuple(isolate, null);
-	}
-	
-	static Future<Isolate>
-	startIsolate<T>(void onIsolate(T s), T data, void onReceived(dynamic s), ReceivePort receivePort) async {
-		final completer = Completer<Isolate>();
-		final isolate = await createIsolate<T>(onIsolate, data);
-		if (isolate.value == null){
-			isolate.value = receivePort.listen((response) {
-				onReceived(response);
-			});
-		}else{
-			stopIsolate<T>(isolate.key);
-			return startIsolate<T>(onIsolate, data, onReceived, receivePort);
-		}
-		completer.complete(isolate.key);
-		return completer.future;
-	}
-	
-	static void stopIsolate<T>(Isolate? isolate) {
-		if (isolate != null) {
-			if (_ISOLATES.containsKey(T))	{
-				isolate.kill(priority: Isolate.immediate);
-				_ISOLATES[T]!.value?.cancel();
-				_ISOLATES.remove(T);
-			}else{
-				guard((){
-					final entry = _ISOLATES.entries.firstWhere((entry) => entry.value.key == isolate);
-					entry.value.key.kill.call(priority: Isolate.immediate);
-					entry.value.value?.cancel.call();
-					_ISOLATES.remove(entry.key);
-				}, "isolate entry not found");
-			}
-		}
-	}
-	
-	T? getMapKeyByWhereValue<T, V>(Map<T, V> map, V value) {
-		return guard((){
-			return map.entries
-					.firstWhere((e) => e.value == value)
-					.key;
-		}, "getMapKeyByWhereValue, value not found $value");
-	}
+
+	@Deprecated("use ISOLATE instead")
+	static Map<Type, Tuple<Isolate, StreamSubscription>> _ISOLATES = ISOLATES_CONTAINER;
+
+	@Deprecated("use ISOLATE instead")
+	static final createIsolate=ISOLATE.create;
+
+	@Deprecated("use ISOLATE instead")
+	static final startIsolate = ISOLATE.start;
+
+	@Deprecated("use ISOLATE instead")
+	static final stopIsolate = ISOLATE.stop;
+
+	/// get key in Map object where value matches
+	static final getKeyWhereValue = _getKeyWhereValue;
+
+	@Deprecated("use getKeyWhereValue instead")
+	static final getMapKeyByWhereValue = _getKeyWhereValue;
 	
 	/// --------------------------------------
 	/// link master function to slave one
@@ -134,16 +129,20 @@ class FN {
 		}
 		return result = TLinked(newMaster, linked_slave);
 	}
-	
-	static T? getEltOrNull<T>(List<T> elements, int id) {
+
+	static T? getElement<T>(List<T> elements, int id) {
 		final l = elements.length;
 		if (id < l) return elements[id];
 		return null;
 	}
 
+	@Deprecated("use getElement instead")
+	static final getEltOrNull = getElement;
+
 	///
 	/// 強制轉為二維陣列
-	/// __example__
+	///
+	/// ### Example:
 	/// ```dart
 	/// expect(FN.asTwoDimensionList(list, 1), equals([[1], [2],[3],[4],[5],[6],[7],[8],[9],[10],[11],[12]]));
 	/// expect(FN.asTwoDimensionList(list, 2), orderedEquals([[1,2], [3,4],[5,6],[7,8],[9,10],[11,12]]));
@@ -161,7 +160,10 @@ class FN {
 		}
 		return result;
 	}
-	
+
+	///
+	/// generate a list of values ranged from start till end
+	///
 	static E
 	range<E>(E s, [int? start, int? end]) {
 		if (E == String) {
@@ -282,7 +284,7 @@ class FN {
 	}
 	
 	static Iterable<E>
-	union_1dlist<E>(List<E> left, List<E> right, [bool comp(List<E> a, E b)?]) {
+	union_1dList<E>(List<E> left, List<E> right, [bool comp(List<E> a, E b)?]) {
 		var already_in_r = false;
 		var ret = left;
 		comp ??= (a, b) => a.contains(b);
@@ -296,9 +298,12 @@ class FN {
 		}
 		return ret;
 	}
+
+	@Deprecated("use union_1dList instead")
+	static final union_1dlist = union_1dList;
 	
 	static List<List<E>>
-	union_2dlist<E>(List<List<E>> left, List<List<E>> right, [bool comp(List<E> a, E b)?]) {
+	union_2dList<E>(List<List<E>> left, List<List<E>> right, [bool comp(List<E> a, E b)?]) {
 		var already_in_r = false;
 		var all = <List<E>>[];
 		comp ??= (a, b) => a.contains(b);
@@ -314,7 +319,11 @@ class FN {
 		}
 		return all;
 	}
-	
+
+	@Deprecated("use union_2dList instead")
+	static final union_2dlist = union_2dList;
+
+
 	static List<T>
 	sorted<T>(List<T> data, [int compare(T a, T b)?]) {
 		if (data.isEmpty) return data;
@@ -384,22 +393,22 @@ class FN {
 	} //@fmt:on
 	
 	static String
-	stripLeft(String source, [String stripper = " "]) {
-		return _stripLR(source, stripper, _stripLeft,
+	stripLeft(String source, [String chars = " "]) {
+		return _stripLR(source, chars, _stripLeft,
 						(String s, String end) => s.startsWith(end),
 						(String s, int start, int end) => s.substring(s.length - end));
 	}
 	
 	static String
-	stripRight(String source, [String stripper = " "]) {
-		return _stripLR(source, stripper, _stripRight,
+	stripRight(String source, [String chars = " "]) {
+		return _stripLR(source, chars, _stripRight,
 						(String s, String end) => s.endsWith(end),
 						(String s, int start, int end) => s.substring(start, end));
 	}
 	
 	static String
-	strip(String source, [String stripper = " "]) {
-		return stripLeft(stripRight(source, stripper), stripper);
+	strip(String source, [String chars = " "]) {
+		return stripLeft(stripRight(source, chars), chars);
 	}
 	
 	static String

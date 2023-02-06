@@ -63,16 +63,14 @@ class _Debouncer {
 
 
 ///
-///  量測效能
-///  [run]
-/// 	[runAsync]
+///  量測效能, 記錄 function 執行時間並返回其值;
 ///
 class Performance {
 	static final Map<String, Performance> instances = {};
 	late _Debouncer notifyDeBouncer;
 	late String tagname;
 	late int diff;
-	List<int> results = [];
+	List<int> _results = [];
 
 	Performance._(this.tagname);
 
@@ -83,20 +81,24 @@ class Performance {
 		return instances[name]!;
 	}
 
-	void notify(){
-		// _D.i(()=>'performance<$tagname> ${results.reduce((a, b) => a + b)/ results.length} / ${results.length}');
-		results.clear();
+	void clear(){
+		_results.clear();
 	}
 
+	void Function(Performance per)? _onNotify;
+	void onNotify(void cb(Performance per)){
+		_onNotify = cb;
+	}
 
 	Future<T> runAsync<T>(Future<T> cb()) async {
 		final a = DateTimeExtension.envNow();
 		final result = await cb();
 		final b = DateTimeExtension.envNow();
 		diff = b.difference(a).inMilliseconds;
-		results.add(diff);
-		notifyDeBouncer.run(action: notify);
-		// _D.i(()=>'runAsync $tagname, diff: $diff');
+		_results.add(diff);
+		notifyDeBouncer.run(action: (){
+			_onNotify?.call(this);
+		});
 		return result;
 	}
 
@@ -105,9 +107,10 @@ class Performance {
 		final result = cb();
 		final b = DateTimeExtension.envNow();
 		final diff = b.difference(a);
-		results.add(diff.inMilliseconds);
-		notifyDeBouncer.run(action: notify);
-		// _D.i(()=>'run $tagname, diff: $diff');
+		_results.add(diff.inMilliseconds);
+		notifyDeBouncer.run(action: (){
+			_onNotify?.call(this);
+		});
 		return result;
 	}
 }

@@ -28,31 +28,27 @@ class PackageNumber {
     }
   }
 
-  bool greaterThanInSequencedOrder(
-      List<int> numbersCurrent, List<int> numbersOther) {
-    if (numbersCurrent.first > numbersOther.first)
-      return true;
-    else if (numbersCurrent.first == numbersOther.first)
-      return greaterThanInSequencedOrder(
-          FN.tail(numbersCurrent).toList(), FN.tail(numbersOther).toList());
-    return false;
-  }
-
-  bool lessThanInSequencedOrder(
-      List<int> numbersCurrent, List<int> numbersOther) {
-    if (numbersCurrent.first < numbersOther.first)
-      return true;
-    else if (numbersCurrent.first == numbersOther.first)
-      return lessThanInSequencedOrder(
-          FN.tail(numbersCurrent).toList(), FN.tail(numbersOther).toList());
-    return false;
-  }
+  // bool greaterThanInSequencedOrder(
+  //     List<int> numbersCurrent, List<int> numbersOther) {
+  //   if (numbersCurrent.first > numbersOther.first)
+  //     return true;
+  //   else if (numbersCurrent.first == numbersOther.first)
+  //     return greaterThanInSequencedOrder(
+  //         FN.tail(numbersCurrent).toList(), FN.tail(numbersOther).toList());
+  //   return false;
+  // }
+  //
+  // bool lessThanInSequencedOrder(
+  //     List<int> numbersCurrent, List<int> numbersOther) {
+  //   if (numbersCurrent.first < numbersOther.first)
+  //     return true;
+  //   else if (numbersCurrent.first == numbersOther.first)
+  //     return lessThanInSequencedOrder(
+  //         FN.tail(numbersCurrent).toList(), FN.tail(numbersOther).toList());
+  //   return false;
+  // }
 
   bool operator >(PackageNumber other) {
-//		return sequencedGreaterThan(
-//			[_majorNumber, _minorNumber, _maintainNumber, _patchNumber],
-//			[other._majorNumber, other._minorNumber, other._maintainNumber, other._patchNumber],
-//		);
     if (_majorNumber > (other._majorNumber))
       return true;
     else if (_majorNumber == other._majorNumber) {
@@ -76,10 +72,6 @@ class PackageNumber {
   }
 
   bool operator <(PackageNumber other) {
-//		return sequencedLessThan(
-//			[_majorNumber, _minorNumber, _maintainNumber, _patchNumber],
-//			[other._majorNumber, other._minorNumber, other._maintainNumber, other._patchNumber],
-//		);
     if (_majorNumber < (other._majorNumber))
       return true;
     else if (_majorNumber == other._majorNumber) {
@@ -120,3 +112,7 @@ class PackageNumber {
   // TODO: implement hashCode
   int get hashCode => super.hashCode;
 }
+
+
+
+

@@ -6,6 +6,7 @@ library dart_common;
 export 'src/common.dart' show tryRaise, guard, raise, Tuple, Triple, Dict,  observerGuard;
 export 'src/common.date.dart';
 export 'src/common.fn.dart';
+export 'src/common.isolate.dart' show ISOLATE;
 export 'src/common.is.dart';
 export 'src/common.iterable.dart';
 export 'src/common.packagenumber.dart';
