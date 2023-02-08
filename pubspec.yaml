@@ -12,7 +12,7 @@ environment:
 
 dependencies:
   colorize: ^3.0.0    #support colorizing console color
-  logger: 1.0.0
+  logger: ^1.1.0
 
 dev_dependencies:
   test: ^1.22.2
