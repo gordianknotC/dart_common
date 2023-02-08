@@ -17,5 +17,6 @@ export 'src/common.log.dart';
 export 'src/common.fetch.dart';
 export 'src/common.string.dart';
 export 'src/common.platform.dart';
+export 'src/common.env.dart' show appEnv, Env;
 
 
