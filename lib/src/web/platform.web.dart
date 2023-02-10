@@ -1,4 +1,4 @@
-library io_simple.web;
+library platform;
 
 import 'dart:async';
 import 'dart:io';

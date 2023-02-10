@@ -1,4 +1,4 @@
-library io_simple.mobile;
+library platform;
 
 import 'dart:io' as IO;
 

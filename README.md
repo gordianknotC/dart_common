@@ -8,6 +8,16 @@ dart_common:
     refs: master
 ```
 
+## 目錄
+- [FN](#FN)
+- [RetryFetcher](#RetryFetcher)
+- [Platform](#Platform)
+- [CrossingDateDetector](#CrossingDateDetector)
+- [CrossingDateWidget](#CrossingDateWidget)
+- [Logger](#Logger)
+- [IsWhat](#Is) 
+
+
 ## common.fn.dart
 ### FN
 常用 functional programming 工具
@@ -260,7 +270,9 @@ class Performance {
 ### Logger
 
 ## common.is.dart
-### IsWhat
+### Is
+推斷用工具，如 Is.empty | Is.num | Is.union | is.lowerCaseChar....
+
 - not
 - empty
 - set
