@@ -9,6 +9,7 @@ abstract class PlatformSketch{
   bool get isWindows ;
   bool get isLinux;
   bool get isAndroid ;
+  dynamic get window;
 }
 
 typedef TGetApplicationDocumentsDirectory = Future<Directory?> Function();

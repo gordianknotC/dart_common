@@ -50,10 +50,10 @@ class FN {
 	static bool orderedEqualBy<E>(List<E>? a, List<E>? b, bool eq(E a, E b)){
 		if ((a?.isEmpty ?? true) && (b?.isEmpty ?? true))
 			return true;
-		
+
 		if (a?.length != b?.length)
 			return false;
-		
+
 		for (var i = 0; i < a!.length; ++i) {
 			final _a = a[i];
 			final _b = b![i];
@@ -110,7 +110,7 @@ class FN {
 
 	@Deprecated("use getKeyWhereValue instead")
 	static final getMapKeyByWhereValue = _getKeyWhereValue;
-	
+
 	/// --------------------------------------
 	/// link master function to slave one
 	/// FIXME: untested
@@ -184,32 +184,32 @@ class FN {
 			throw Exception('Invalid type. Only support for string or list');
 		}
 	}
-	
+
 	static Iterable<E>
 	head<E>(List<E> array) {
 		return array.sublist(0, array.length - 1);
 	}
-	
+
 	static Iterable<E>
 	tail<E>(List<E> array) {
 		return array.sublist(1, array.length);
 	}
-	
+
 	static E
 	last<E>(List<E> array) {
 		return array.last;
 	}
-	
+
 	static E
 	first<E>(List<E> array) {
 		return array.first;
 	}
-	
+
 	static T
 	remove<T>(List<T> array, T element) {
 		return array.removeAt(array.indexOf(element));
 	}
-	
+
 	static List<String>
 	split(String data, String ptn, [int max = 1]) {
 		late String d = data, pre, suf;
@@ -228,7 +228,7 @@ class FN {
 		ret.add(suf);
 		return ret;
 	}
-	
+
 	static int
 	findIndex<T>(List<T> data, bool search(T element)) {
 		int? result = -1;
@@ -253,16 +253,16 @@ class FN {
 		}
 		return counter;
 	}
-	
+
 	static int
 	countBy<E>(List<E> data, int comp(E a)){
 		return data.fold<int>(0, (initial, b){
 			return initial + comp(b);
 		});
 	}
-	
+
 	static List<E>
-	unique<E>(List<E> A, bool filter(List<E> acc, E b)) {
+	unique<E>(List<E> A, [bool filter(List<E> acc, E b)?] ) {
 		List<E> result = [];
 		filter ??= (acc, b) => acc.contains(b);
 		for (var i = 0; i < A.length; ++i) {
@@ -272,7 +272,7 @@ class FN {
 		}
 		return result;
 	}
-	
+
 	static Iterable<List<T>>
 	zip<T>(Iterable<Iterable<T>> iterables) sync* {
 		if (iterables.isEmpty) return;
@@ -282,13 +282,13 @@ class FN {
 			yield iterators.map((e) => e.current).toList(growable: false);
 		}
 	}
-	
+
 	static Iterable<E>
 	union_1dList<E>(List<E> left, List<E> right, [bool comp(List<E> a, E b)?]) {
 		var already_in_r = false;
 		var ret = left;
 		comp ??= (a, b) => a.contains(b);
-		
+
 		for (var i = 0; i < right.length; ++i) {
 			var r_member = right[i];
 			already_in_r = left.any((l_member) => l_member == r_member);
@@ -301,13 +301,13 @@ class FN {
 
 	@Deprecated("use union_1dList instead")
 	static final union_1dlist = union_1dList;
-	
+
 	static List<List<E>>
 	union_2dList<E>(List<List<E>> left, List<List<E>> right, [bool comp(List<E> a, E b)?]) {
 		var already_in_r = false;
 		var all = <List<E>>[];
 		comp ??= (a, b) => a.contains(b);
-		
+
 		for (var i = 0; i < right.length; ++i) {
 			var r_member = right[i];
 			already_in_r = r_member.every((ref) =>
@@ -331,7 +331,7 @@ class FN {
 		iterators.sort(compare);
 		return iterators;
 	}
-	
+
 	static void
 	forEach<T>(List<T> list, bool Function(T member, [int index]) cb) {
 		var length = list.length;
@@ -339,7 +339,7 @@ class FN {
 			if (cb(list[i], i)) return;
 		}
 	}
-	
+
 	static Iterable<T>
 	map<T, E>(List<E> list, T Function(E member, [int index]) cb) {
 		var i = -1;
@@ -365,17 +365,17 @@ class FN {
 		}
 		return source;
 	}
-	
+
 	static String
 	_stripRight(String source, List<String> stripper, int srlen, int stlen, _TEndsStartsWith conditioning, _TSubstring substring) {
 		return _strip(source, stripper, srlen, stlen, conditioning, substring);
 	}
-	
+
 	static String
 	_stripLeft(String source, List<String> stripper, int srlen, int stlen, _TEndsStartsWith conditioning, _TSubstring substring) {
 		return _strip(source, stripper, srlen, stlen, conditioning, substring);
 	}
-	
+
 	static String
 	_stripLR(String source, String stripper,
 			String Function(String source, List<String> stripper, int srlen, int stlen, _TEndsStartsWith conditioning, _TSubstring substring) pathway,
@@ -391,26 +391,26 @@ class FN {
 		}
 		return source;
 	} //@fmt:on
-	
+
 	static String
 	stripLeft(String source, [String chars = " "]) {
 		return _stripLR(source, chars, _stripLeft,
 						(String s, String end) => s.startsWith(end),
 						(String s, int start, int end) => s.substring(s.length - end));
 	}
-	
+
 	static String
 	stripRight(String source, [String chars = " "]) {
 		return _stripLR(source, chars, _stripRight,
 						(String s, String end) => s.endsWith(end),
 						(String s, int start, int end) => s.substring(start, end));
 	}
-	
+
 	static String
 	strip(String source, [String chars = " "]) {
 		return stripLeft(stripRight(source, chars), chars);
 	}
-	
+
 	static String
 	dePrefix(String prefixed_name, String prefix, [String suffix = '', bool to_camelcase = false]) {
 		var l = prefix.length;
@@ -420,7 +420,7 @@ class FN {
 			return '${name.substring(0, 1).toLowerCase()}${name.substring(1)}';
 		return '${name.substring(0, 1)}${name.substring(1)}';
 	}
-	
+
 	static String
 	toCamelCase(String word) {
 		var current_under = IS.upperCaseChar(word[0]),
@@ -441,7 +441,7 @@ class FN {
 		}
 		return word;
 	}
-	
+
 	static String
 	toSnakeCase(String word) {
 		var current_upper = IS.upperCaseChar(word[0]),
@@ -458,12 +458,12 @@ class FN {
 			}).join('');
 		return word;
 	}
-	
+
 	static void
 	prettyPrint(dynamic source, [int level = 0, bool colorized = true]) {
 		print(FN.stringPrettier(source, level, colorized));
 	}
-	
+
 	static Object
 	stringPrettier(dynamic node, [int level = 0, bool colorized = true]) {
 		var output = '';
@@ -510,7 +510,7 @@ class FN {
 				: vstring;
 		return "\t" * (level) + '$tstring $vstring';
 	}
-	
+
 	static void ensureKeys<T>(Map<T, dynamic> map, List<T> keys) {
 		final result = <T>[];
 		for (final key in map.keys) {
@@ -522,7 +522,7 @@ class FN {
 			throw Exception('Map keys missmatched. following keys are missing:\n ${result.map((m) => m.toString()).toList()}');
 		}
 	}
-	
+
 	static void updateDictByMembers(Map<String, dynamic> target, Map<String, dynamic> source, {
 		required List<String> members, bool removeFromSource = false
 	}) {
@@ -534,7 +534,7 @@ class FN {
 			}
 		});
 	}
-	
+
 	static int countOn<T>(List<T> data, bool Function(T d) condition) {
 		int result = 0;
 		for (var i = 0; i < data.length; ++i) {
@@ -544,7 +544,7 @@ class FN {
 		}
 		return result;
 	}
-	
+
 	//fixme:
 	static List<int> difference(List<int> list, List<int> list2) {
 		if (list == null || list2 == null)

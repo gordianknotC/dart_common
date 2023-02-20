@@ -2,7 +2,7 @@ library platform;
 
 import 'dart:async';
 import 'dart:io';
-
+import 'dart:html';
 import '../sketch/platform.sketch.dart';
 
 
@@ -16,7 +16,8 @@ class Platform implements PlatformSketch{
 	@override bool get isLinux => false;
 	@override bool get isAndroid => false;
 	@override bool get isWeb => true;
-	
+  @override get window => window;
+
 }
 
 TGetApplicationDocumentsDirectory	getApplicationDocumentsDirectory = (){

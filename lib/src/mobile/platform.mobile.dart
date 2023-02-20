@@ -15,6 +15,7 @@ class Platform implements PlatformSketch{
 	@override bool get isAndroid => IO.Platform.isAndroid;
 	@override Uri get script => IO.Platform.script;
   @override bool get isWeb => false;
+  @override get window => throw UnimplementedError();
 }
 
 TGetApplicationDocumentsDirectory	getApplicationDocumentsDirectory = (){

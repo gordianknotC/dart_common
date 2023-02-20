@@ -6,7 +6,6 @@ import 'package:dart_common/src/common.env.dart';
 import 'package:logger/logger.dart' as DefaultLogger;
 import 'package:path/path.dart' as _Path;
 import 'common.platform.dart';
-import 'dart:html';
 
 const METHOD_COUNT = 5;
 final _sep = _Path.separator;
@@ -15,21 +14,19 @@ final _rsep = _sep == r'\'
     : r'\';
 
 final _isWeb = Platform().isWeb;
-final _log = (String msg) => _isWeb ? window.console.log(msg) : print(msg);
-final _debug = (String msg) => _isWeb ? window.console.debug(msg) : print(msg);
-final _warn = (String msg) => _isWeb ? window.console.warn(msg) : print(msg);
-final _error = (String msg) => _isWeb ? window.console.error(msg) : print(msg);
-final _info = (String msg) => _isWeb ? window.console.info(msg) : print(msg);
-final _trace = (String msg) => _isWeb ? window.console.trace(msg) : print(msg);
+final _log = (String msg) => _isWeb ? Platform().window.console.log(msg) : print(msg);
+final _debug = (String msg) => _isWeb ? Platform().window.console.debug(msg) : print(msg);
+final _warn = (String msg) => _isWeb ? Platform().window.console.warn(msg) : print(msg);
+final _error = (String msg) => _isWeb ? Platform().window.console.error(msg) : print(msg);
+final _info = (String msg) => _isWeb ? Platform().window.console.info(msg) : print(msg);
+final _trace = (String msg) => _isWeb ? Platform().window.console.trace(msg) : print(msg);
 
 String rectifyPathSeparator(String path) {
-  //orig:  if (!path.contains(sep))
   if (Platform().isMacOS && !path.startsWith('/'))
     path = "/$path";
   if (path.contains(_rsep))
     path = path.replaceAll(_rsep, _sep);
   return path;
-  //return combinePath(path, sep);
 }
 
 enum ELevel {
@@ -354,22 +351,22 @@ class Logger {
       dynamic log;
       switch(level){
         case ELevel.debug:
-          log = _isWeb ? window.console.log : print;
+          log = _isWeb ? Platform().window.console.log : print;
           break;
         case ELevel.warning:
-          log = _isWeb ? window.console.warn : print;
+          log = _isWeb ? Platform().window.console.warn : print;
           break;
         case ELevel.error:
-          log = _isWeb ? window.console.error : print;
+          log = _isWeb ? Platform().window.console.error : print;
           break;
         case ELevel.info:
-          log = _isWeb ? window.console.info : print;
+          log = _isWeb ? Platform().window.console.info : print;
           break;
         case ELevel.verbose:
-          log = _isWeb ? window.console.trace : print;
+          log = _isWeb ? Platform(). window.console.trace : print;
           break;
         case ELevel.current:
-          log = _isWeb ? window.console.log : print;
+          log = _isWeb ? Platform().window.console.log : print;
           break;
       }
       log(message());

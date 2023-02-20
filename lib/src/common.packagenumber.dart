@@ -6,10 +6,10 @@ class PackageNumber {
   ///1.12.13+12
   final RegExp regex = RegExp(r'([0-9]+.)([0-9]+.)([0-9]+)(\+[0-9]+){0,1}');
   final String versionString;
-  late int _majorNumber = 0;
-  late int _minorNumber = 0;
-  late int _maintainNumber = 0;
-  late int _patchNumber = 0;
+  late final int majorNumber ;
+  late final int minorNumber ;
+  late final int maintainNumber ;
+  late final int patchNumber ;
 
   PackageNumber(this.versionString) {
     final result = regex.firstMatch(versionString);
@@ -18,47 +18,27 @@ class PackageNumber {
       assert(result!.group(1) != null, 'group 1');
       assert(result!.group(2) != null, 'group 2');
       assert(result!.group(3) != null, 'group 3');
-      _majorNumber = int.parse(result!.group(1)!.split('.').first);
-      _minorNumber = int.parse(result.group(2)!.split('.').first);
-      _maintainNumber = int.parse(result.group(3)!);
-      _patchNumber = int.parse((result.group(4) ?? "+0").split('+').last);
+      majorNumber = int.parse(result!.group(1)!.split('.').first);
+      minorNumber = int.parse(result.group(2)!.split('.').first);
+      maintainNumber = int.parse(result.group(3)!);
+      patchNumber = int.parse((result.group(4) ?? "+0").split('+').last);
     } catch (e, s) {
       print('[ERROR] on PackageNumber.PackageNumber, versionString $versionString $e\n$s');
       rethrow;
     }
   }
 
-  // bool greaterThanInSequencedOrder(
-  //     List<int> numbersCurrent, List<int> numbersOther) {
-  //   if (numbersCurrent.first > numbersOther.first)
-  //     return true;
-  //   else if (numbersCurrent.first == numbersOther.first)
-  //     return greaterThanInSequencedOrder(
-  //         FN.tail(numbersCurrent).toList(), FN.tail(numbersOther).toList());
-  //   return false;
-  // }
-  //
-  // bool lessThanInSequencedOrder(
-  //     List<int> numbersCurrent, List<int> numbersOther) {
-  //   if (numbersCurrent.first < numbersOther.first)
-  //     return true;
-  //   else if (numbersCurrent.first == numbersOther.first)
-  //     return lessThanInSequencedOrder(
-  //         FN.tail(numbersCurrent).toList(), FN.tail(numbersOther).toList());
-  //   return false;
-  // }
-
   bool operator >(PackageNumber other) {
-    if (_majorNumber > (other._majorNumber))
+    if (majorNumber > (other.majorNumber))
       return true;
-    else if (_majorNumber == other._majorNumber) {
-      if (_minorNumber > (other._minorNumber))
+    else if (majorNumber == other.majorNumber) {
+      if (minorNumber > (other.minorNumber))
         return true;
-      else if (_minorNumber == (other._minorNumber)) {
-        if (_maintainNumber > (other._maintainNumber))
+      else if (minorNumber == (other.minorNumber)) {
+        if (maintainNumber > (other.maintainNumber))
           return true;
-        else if (_maintainNumber == (other._maintainNumber)) {
-          if (_patchNumber > (other._patchNumber)) return true;
+        else if (maintainNumber == (other.maintainNumber)) {
+          if (patchNumber > (other.patchNumber)) return true;
           return false;
         } else {
           return false;
@@ -72,16 +52,16 @@ class PackageNumber {
   }
 
   bool operator <(PackageNumber other) {
-    if (_majorNumber < (other._majorNumber))
+    if (majorNumber < (other.majorNumber))
       return true;
-    else if (_majorNumber == other._majorNumber) {
-      if (_minorNumber < (other._minorNumber))
+    else if (majorNumber == other.majorNumber) {
+      if (minorNumber < (other.minorNumber))
         return true;
-      else if (_minorNumber == (other._minorNumber)) {
-        if (_maintainNumber < (other._maintainNumber))
+      else if (minorNumber == (other.minorNumber)) {
+        if (maintainNumber < (other.maintainNumber))
           return true;
-        else if (_maintainNumber == (other._maintainNumber)) {
-          if (_patchNumber < (other._patchNumber)) return true;
+        else if (maintainNumber == (other.maintainNumber)) {
+          if (patchNumber < (other.patchNumber)) return true;
           return false;
         } else {
           return false;
@@ -97,15 +77,15 @@ class PackageNumber {
   @override
   bool operator ==(other) {
     if (other is! PackageNumber) return false;
-    return _majorNumber == (other._majorNumber) &&
-        _minorNumber == (other._minorNumber) &&
-        _maintainNumber == (other._maintainNumber) &&
-        _patchNumber == (other._patchNumber);
+    return majorNumber == (other.majorNumber) &&
+        minorNumber == (other.minorNumber) &&
+        maintainNumber == (other.maintainNumber) &&
+        patchNumber == (other.patchNumber);
   }
 
   @override
   String toString() {
-    return "$_majorNumber $_minorNumber $_maintainNumber $_patchNumber";
+    return "$majorNumber $minorNumber $maintainNumber $patchNumber";
   }
 
   @override

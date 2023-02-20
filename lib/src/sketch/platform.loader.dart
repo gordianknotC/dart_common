@@ -16,6 +16,8 @@ class Platform implements PlatformSketch{
   @override bool get isLinux => false;
   // ignore: missing_return
   @override bool get isWindows => false;
+
+  @override get window => throw UnimplementedError();
 }
 
 TGetApplicationDocumentsDirectory	getApplicationDocumentsDirectory = () => Future.value();
