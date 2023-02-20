@@ -1,7 +1,6 @@
 import 'package:dart_common/dart_common.dart';
 import 'package:test/test.dart';
 
-
 class Helper {
 	void expectParsingProperly(PackageNumber inst, int major, int minor, int maintain, [int patch = 0]){
 		expect(inst.majorNumber, equals(major));
@@ -32,7 +31,6 @@ class Helper {
 		}
 	}
 }
-
 
 extension ListExtention<T> on List<T>{
 	Iterable<T> except(T b){
@@ -99,6 +97,5 @@ void main() {
 			h.expectGreater(pvb3, [pva1, pva2, pva3]);
 			h.expectGreater(pvb5, [pva1, pva2, pva3, pvb3]);
 		});
-
 	});
 }

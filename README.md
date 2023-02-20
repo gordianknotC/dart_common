@@ -12,6 +12,7 @@ dart_common:
 - [FN](#FN)
 - [RetryFetcher](#RetryFetcher)
 - [Platform](#Platform)
+- [PackageNumber](#PackageNumber)
 - [CrossingDateDetector](#CrossingDateDetector)
 - [CrossingDateWidget](#CrossingDateWidget)
 - [Logger](#Logger)
@@ -150,6 +151,15 @@ export 'sketch/platform.loader.dart'
 if (dart.library.io) 'mobile/io.platform.mobile.dart'
 if (dart.library.html) 'web/io.platform.web.dart';
 ```
+
+## common.packagenumber.dart
+### PackageNumber
+```dart
+void main(){
+  expect(PackageNumber("1.9.8+12"), greaterThan(PackageNumber("1.9.8")));
+}
+```
+
 
 #### 介面 PlatformSketch
 ```dart
